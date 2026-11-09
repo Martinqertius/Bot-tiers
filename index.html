@@ -121,13 +121,17 @@ body:not(.admin) #add,body:not(.admin) #xbtn,body:not(.admin) #ibtn,body:not(.ad
 .fx{border:0!important;background:none!important;padding:0 2px 0 4px;margin:0;font-size:12px;line-height:1;color:var(--mute)!important;cursor:pointer;white-space:nowrap}.fx:hover{color:var(--acc)!important}
 body:not(.admin) .fx{display:none!important}
 textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;box-sizing:border-box;resize:vertical}
+.dcrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.dcb{display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;background:#5865f2;color:#fff}
+#dcbtn{background:#5865f2;border-color:#5865f2;color:#fff;font-weight:700}#dcbtn img{margin-right:6px;vertical-align:-5px}
+body:not(.admin) #lkbtn{display:none!important}
+.cosg{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}.cos{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px}
 </style>
 </head>
 <body>
 <template id="shell">
 <header>
   <h1 class="logo"><svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#06302c"></rect><rect x="4.5" y="14" width="7.5" height="12" rx="1.5" fill="#a9b8d0"></rect><rect x="12.25" y="7" width="7.5" height="19" rx="1.5" fill="#f7cf4f"></rect><rect x="20" y="17" width="7.5" height="9" rx="1.5" fill="#b8651f"></rect><rect x="12.25" y="7" width="7.5" height="3" rx="1.5" fill="#fff3b0"></rect><rect x="4.5" y="14" width="7.5" height="3" rx="1.5" fill="#dbe5f5"></rect><rect x="20" y="17" width="7.5" height="3" rx="1.5" fill="#e29a55"></rect></svg><span>Bot Tiers</span></h1>
-  <div class="hr"><input id="q" type="search" placeholder="Search player" aria-label="Search player"><button id="sbtn" type="button" aria-pressed="false">Stats</button><button id="pbtn" type="button" aria-pressed="false" title="How many points each tier is worth">Points</button><button id="xbtn" type="button" title="Download a backup">Export</button><button id="ibtn" type="button" title="Load a backup">Import</button><button id="abtn" type="button" aria-pressed="false">Admin login</button><button id="tbtn" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button><button id="svbtn" type="button" title="Save and publish your changes for everyone">Save</button><button id="pubst" type="button" title="Publish changes now" role="status"></button><input id="ifile" type="file" accept="application/json" aria-label="Import backup"></div>
+  <div class="hr"><input id="q" type="search" placeholder="Search player" aria-label="Search player"><button id="sbtn" type="button" aria-pressed="false">Stats</button><button id="pbtn" type="button" aria-pressed="false" title="How many points each tier is worth">Points</button><button id="dcbtn" type="button" title="Log in with Discord">Log in with Discord</button><button id="cosbtn" type="button" title="Cosmetics">Cosmetics</button><button id="lkbtn" type="button" title="Approve a Discord link request">Link Discord</button><button id="xbtn" type="button" title="Download a backup">Export</button><button id="ibtn" type="button" title="Load a backup">Import</button><button id="abtn" type="button" aria-pressed="false">Admin login</button><button id="tbtn" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button><button id="svbtn" type="button" title="Save and publish your changes for everyone">Save</button><button id="pubst" type="button" title="Publish changes now" role="status"></button><input id="ifile" type="file" accept="application/json" aria-label="Import backup"></div>
 </header>
 <nav id="nav" aria-label="Gamemode"></nav>
 <div id="ticker" aria-live="polite"><i class="dot"></i><span>Your rating changes will show up here</span></div>
@@ -150,7 +154,7 @@ textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var
 </main>
 <div id="modal" role="dialog" aria-modal="true" aria-label="Player profile"><div class="card" id="card"></div></div>
 </template>
-<script id="state" type="application/json">{"v":1,"P":[{"name":"martinqertius","region":"–","t":{"Sword":"HT3","Npot":"LT3","Axe":"LT3","SMP":"LT3"},"h":{"Sword":[{"t":"HT3","ts":1793395085753}],"Npot":[{"t":"LT3","ts":1793395631185}],"Axe":[{"t":"LT3","ts":1793395653734}],"SMP":[{"t":"LT3","ts":1793395673957}]}},{"name":"holubak6662","region":"–","t":{"Sword":"LT3","Npot":"LT3","Axe":"LT3","UHC":"LT3"},"h":{"Sword":[{"t":"LT3","ts":1793395750902}],"Npot":[{"t":"LT3","ts":1793395764856}],"Axe":[{"t":"LT3","ts":1793395774945}],"UHC":[{"t":"LT3","ts":1793395783628}]}},{"name":"vilemos67","region":"–","t":{"Sword":"HT4","UHC":"HT5"},"h":{"Sword":[{"t":"HT4","ts":1793395806674}],"UHC":[{"t":"HT5","ts":1793395821427}]}}],"BAN":[],"LOG":[{"s":"martinqertius set to HT3 in Sword","n":"martinqertius","m":"Sword","t":"HT3","big":true,"d":"30. 10."}]}</script>
+<script id="state" type="application/json">{"v":1,"P":[{"name":"martinqertius","region":"–","t":{"Sword":"HT3","Npot":"LT3","Axe":"LT3","SMP":"LT3","UHC":"LT4","Cpvp":"HT5"},"h":{"Sword":[{"t":"HT3","ts":1793395085753,"f":[{"r":"Won","s":"","tt":"czsktiersPromote","tl":""}]}],"Npot":[{"t":"LT3","ts":1793395631185,"ev":{"ts":1793461164861}}],"Axe":[{"t":"LT3","ts":1793395653734}],"SMP":[{"t":"LT3","ts":1793395673957}],"UHC":[{"t":"LT4","ts":1793464781116,"f":[{"r":"Lost","s":"0-6","tt":"holubak6662","tl":"LT3"}]}],"Cpvp":[{"t":"HT5","ts":1793537959197,"f":[{"r":"Lost","s":"1-4","tt":"holubak6662","tl":"LT3"}]}]},"skin":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABHklEQVR4AeyZsQqEQAxEg5zF+f/felcoKNvaDMvgYrJPSCHZbJKZZ+VyHts5cywx+YMAkwMQEAABkyvAJ6AAOPZfZA61HwQoharnIaC6w2o/CFAKVc9PR8DdUCnA+o1w4t6w993p3WpVv0UdqJ5HgOoOq/0gQClUPQ8B1R1W+0GAUqh6HgKqO6z2gwClUPU8BFR3WO0nCdj/EU6oAVTe6d1q1f1SAHVB9jwCZHfQnR8CXAWz10NAdgfd+SHAVTB7PQRkd9CdHwJcBbPXQ0B2B+/z974/TkD7R+9E70K95x8XoHeg0ecRYLTib+sHAW9zZPQ8EDBa8bf1kwR81i2ccBd2erda1V8KoC7InkeA7A6680OAq2D2egjI7qA7/wUAAP//U8hs1gAAAAZJREFUAwDjJ5FAUSwvFgAAAABJRU5ErkJggg=="},{"name":"holubak6662","region":"–","t":{"Sword":"LT3","Npot":"LT3","Axe":"LT3","UHC":"LT3","SMP":"HT5","Cpvp":"LT3"},"h":{"Sword":[{"t":"LT3","ts":1793395750902,"ev":{"ts":1793461174358}}],"Npot":[{"t":"LT3","ts":1793395764856,"ev":{"ts":1793461184801}}],"Axe":[{"t":"LT3","ts":1793395774945}],"UHC":[{"t":"LT3","ts":1793395783628}],"SMP":[{"t":"HT5","ts":1793470106123,"f":[{"r":"Lost","s":"0-2","tt":"Martinqertius","tl":"LT3"}]}],"Cpvp":[{"t":"LT3","ts":1793480146538,"f":[{"r":"Won","s":"6-4","tt":"Vilemos67","tl":"HT4"}]}]},"skin":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABJUlEQVR4AeyVQQrCQBAE16AIvsLnePKxnnyO3xCEyF5z2EYaXdopYQ4yzGynuzZZ2uG0Vq6lFf9hQHEAGgRAQHEHuALFAeAlyBXgChR3gCtQHIB6X4Ft4PIKPI77Nqrtwl//H2nrPaVHGqAWpPcxID1BVz8EuA6mz0NAeoKufknA+flqo3IFuPMjbb2n9ksD1IL0PgakJ+jqhwDXwfR5CEhPUOlXfUnAeru3UakDvt0faes9db40QC1I72NAeoKufghwHUyfh4D0BF39NgH9WzuzphvgCpg9bxMw+wHc8zHAdTB9HgLSE3T1/x0BnxoiDdhdLy25lCHSALUgvY8B6Qm6+iHAdTB9HgLSE3T1Q4DrYPo8BKQn6OqHANfB9HkISE/Q1f8GAAD//3sKEPkAAAAGSURBVAMAtYIEEAekz0gAAAAASUVORK5CYII="},{"name":"vilemos67","region":"–","t":{"Sword":"HT4","UHC":"LT4","SMP":"HT5","Axe":"LT4","Npot":"LT5","Cpvp":"LT3"},"h":{"Sword":[{"t":"HT4","ts":1793395806674,"f":[{"r":"Lost","s":"0-6","tt":"Martinqertius","tl":"HT3"}]},{"t":"HT4","ts":1793549069766,"f":[{"r":"Lost","s":"2-7","tt":"martinqertius","tl":"HT3"}]},{"t":"HT4","ts":1793733526117,"f":[{"r":"Lost","s":"2-7","tt":"holubak6662","tl":"LT3"}]}],"UHC":[{"t":"HT5","ts":1793395821427,"f":[{"r":"Lost","s":"0-6","tt":"Holubak6662","tl":"LT3"}]},{"t":"LT4","ts":1793539198173,"f":[{"r":"Lost","s":"1-6","tt":"holubak6662","tl":"LT3"}]}],"SMP":[{"t":"HT5","ts":1793461896414,"f":[{"r":"Lost","s":"0-2","tt":"martinqertius","tl":"LT3"}]},{"t":"LT4","ts":1793548096664,"f":[{"r":"Lost","s":"1-5","tt":"martinqertius","tl":"LT3"}]},{"t":"HT5","ts":1793729313276,"f":[{"r":"Lost","s":"0-2","tt":"martinqertius","tl":"LT3"}]},{"t":"HT5","ts":1793900713009,"f":[{"r":"Lost","s":"0-2","tt":"martinqertius","tl":"LT3"}]}],"Axe":[{"t":"HT5","ts":1793462792098,"f":[{"r":"Lost","s":"1-7","tt":"martinqertius","tl":"LT3"}]},{"t":"LT4","ts":1793530380506,"f":[{"r":"Lost","s":"4-10","tt":"holubak6662","tl":"LT3"}]}],"Npot":[{"t":"LT4","ts":1793463685323,"f":[{"r":"Lost","s":"1-3","tt":"Martinqertius","tl":"LT3"}]},{"t":"LT4","ts":1793548678034,"f":[{"r":"Lost","s":"2-4","tt":"martinqertius","tl":"LT3"}]},{"t":"LT5","ts":1793729446649,"f":[{"r":"Won","s":"0-2","tt":"martinqertius","tl":"LT3"}]}],"Cpvp":[{"t":"HT4","ts":1793480191261,"f":[{"r":"Lost","s":"4-6","tt":"holubak6662","tl":"HT4"}]},{"t":"LT3","ts":1793528654721,"f":[{"r":"Won","s":"6-4","tt":"holubak6662","tl":"LT3"}]}]},"skin":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB90lEQVR4AeyYPSxDYRSGX7c/t1q0xGgRg0SIhUTCQAwSk8FkMAiJSWIRicHGgpjELAZhtNktIrEaLQZJI9VquXrratcmfU/E5HznJs/QvLm3Pec8J/1ab3qkP2LMjw1GjNnRgYixOjceMRYnhyPGwsRQxGDv3cjYvY3Mg+OXNcBxAWAGmAGOd8BWIO0nwZAE6Wz3wci/lcFIxmNg+Ik4GN0d7WD0ZjNgmAFw/DIDHBfADkK2Aq6tQHO9XlL4Hs5lUmBUgioYaT9RP2e0ht3byEofARi5+jmAUXj/AMNWAI5fZoDjAtg5wFbA+RX4CmtgpFP1/wsIfiJW/73emnyxAsbZwQYYl6e7YEC4gmoIhq2A0ED1sRmgfsRCgWaA0CD1sXoDpAl6F8ebYBxuL4Fxvr8CxtXBGhjSB6yVXsA42lkG4/ruEQwzQJqA9twM0D5hqT4zQOqQ9twM6JpaByOW6QEl24cYITu7BUYUFMHIzmyC8f1ZAqP8cAmGGaB9x6X6zACpQ9pzM0D7hKX61BkgFdyce++3J2CEhWcwmh/429fsjNDIpOelevrAiCp5MMwAqcPaczNA+4Sl+swAqUPaczMgLBfAiGdyYISvT2AUbvbwFz7vz8AIi2UwELSBYQZo33GpPjNA6pD23AzQPmGpvn9vgFSglP8AAAD//+NppkkAAAAGSURBVAMAUgjQlzYmPgcAAAAASUVORK5CYII="},{"name":"davidsm25","region":"–","t":{"SMP":"HT5"},"h":{"SMP":[{"t":"HT5","ts":1793634591714,"f":[{"r":"Lost","s":"0-2","tt":"martinqertius","tl":"LT3"}]}]},"skin":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABv0lEQVR4AeyZvUoDQRSFTwLjf8RCUANaiYW+gbWFoA9gZ6GFoM8gtr6APoCPoI0W9iJYprKzsRFEA9Es7rppU5xhmB3uzO5N+IowM/feOeekWLZtjCkkWV+eKhgb3ZmCsbXWKRibq52C0UbDPypAwwMATYAmoOEK6F9AOgCv7z9grCzMgtEC/+ZFDoYmQDoB0v01AdIOSPfXBEg7IN2/cQkYFzx6Ac6PD8G4ONgHY256EozoBRh3rOrfKkDViqZWTxOQmmNVz6sJqFrR1OoFT0CWZWDYBMuz8nme8Pn9BcbJzjYYwQWwXVB6XQWQdkC6vyZA2gHp/poAaQdC97fVtyZgaAx8MOV5hm3A67slMI6ubsGYX+yCYRXANmDq6ypA6g76zq8J8FUw9fOagNQd9J3fmoCJ8nneB98Bz/bewLg53QWj13sBwyqA7wViP68CxO5Q6Pk0AaEVjr2+JiB2h1znc90ffQLuH57A+OgPwGjBgBG9AK6Ouu5XAVwVq9t+TUDdHHW9jybAVbG67bcmgL3bH62FFuTy8RmM/uAPjN9sCIZVgNAXlK6vAkg7IN1fEyDtgHR/TYC0A779fc//AwAA//9Kw5lfAAAABklEQVQDAI9v0ijGaE55AAAAAElFTkSuQmCC"}],"BAN":[],"LOG":[{"s":"martinqertius set to HT3 in Sword","n":"martinqertius","m":"Sword","t":"HT3","big":true,"d":"30. 10."}]}</script>
 <script id="app">var _sh=document.getElementById('shell');document.body.insertBefore(_sh.content.cloneNode(true),_sh);
 var ADM=false;
 function sha256(s){
@@ -662,6 +666,141 @@ function ghSave(retry){
   };
   if(ADM)ghAdminLoad();
 })();
+
+/* ---- Discord accounts: log in with Discord, link a Minecraft account, cosmetics ---- */
+var DISCORD_CLIENT_ID=''; // paste the Client ID of your Discord application here
+var LINK_API='';  // address of your link server (see link-worker.js); leave empty to keep links on each person's device only
+var LINKS={},LOC=null,ME=null,COSMETICS=[],PLK=null,CLOSE='<button id="x" type="button">Close</button>';
+try{ME=JSON.parse(localStorage.getItem('bottiers:dc')||'null');if(ME&&!/^\d{15,22}$/.test(ME.id))ME=null}catch(e){}
+try{LOC=JSON.parse(localStorage.getItem('bottiers:mylink')||'null')}catch(e){}
+function dcOK(a){return typeof a==='string'&&/^\w+$/.test(a)}
+function lnk(p){return LINKS[p.name.toLowerCase()]||(p.dc&&p.dc.id)||null}
+function dcFind(){if(!ME)return null;return P.filter(function(p){return lnk(p)===ME.id||(LOC&&LOC.i===ME.id&&LOC.m===p.name.toLowerCase())})[0]||null}
+function dcAv(u,s){return u&&dcOK(u.a)?'<img class="av" alt="" width="'+s+'" height="'+s+'" style="border-radius:50%;image-rendering:auto" src="https://cdn.discordapp.com/avatars/'+u.id+'/'+u.a+'.png?size=64">':''}
+function drawDc(){var b=document.getElementById('dcbtn');if(b)b.innerHTML=ME?dcAv(ME,20)+esc(String(ME.n)):'Log in with Discord'}
+function showM(html,from){lastF=from||document.activeElement;card.innerHTML=html;openM();var f=card.querySelector('[data-focus]');if(f)f.focus()}
+function dcLogin(){
+  var html=null;
+  if(window.claude&&claude.use)html='Discord login works on the GitHub version of the site, not on this claude.ai link.';
+  else if(!/^https?:$/.test(location.protocol))html='Open the site from its web address (https://\u2026), not from a file on your computer.';
+  else if(!DISCORD_CLIENT_ID)html=ADM?'Discord login isn\u2019t set up yet. In the Discord Developer Portal create an application, open OAuth2, and add this exact redirect URL: <b>'+esc(location.origin+location.pathname)+'</b>. Then paste the application\u2019s Client ID into <b>DISCORD_CLIENT_ID</b> near the end of index.html, or send the Client ID to Claude.':'Discord login isn\u2019t available yet.';
+  if(html)return showM('<h3>Log in with Discord</h3><p class="meta" style="font-size:13px">'+html+'</p><p>'+CLOSE+'</p>',document.getElementById('dcbtn'));
+  var s=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  try{sessionStorage.setItem('bt:dcs',s)}catch(e){}
+  location.href='https://discord.com/api/oauth2/authorize?client_id='+encodeURIComponent(DISCORD_CLIENT_ID)+'&response_type=token&redirect_uri='+encodeURIComponent(location.origin+location.pathname)+'&scope=identify&state='+s;
+}
+function dcCallback(){
+  var h=location.hash;if(h.indexOf('access_token=')<0)return;
+  var q={};h.slice(1).split('&').forEach(function(kv){var a=kv.split('=');q[a[0]]=decodeURIComponent(a[1]||'')});
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  var s=null;try{s=sessionStorage.getItem('bt:dcs');sessionStorage.removeItem('bt:dcs')}catch(e){}
+  if(!q.access_token||!s||q.state!==s)return;
+  try{sessionStorage.setItem('bt:dct',q.access_token)}catch(e){}
+  fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+q.access_token}}).then(function(r){return r.ok?r.json():null}).then(function(u){
+    if(!u||!/^\d{15,22}$/.test(u.id))return;
+    ME={id:u.id,n:String(u.global_name||u.username||'Discord user').slice(0,40),a:dcOK(u.avatar)?u.avatar:''};
+    try{localStorage.setItem('bottiers:dc',JSON.stringify(ME))}catch(e){}
+    drawDc();acct();
+  }).catch(function(){});
+}
+function acct(){
+  if(!ME)return dcLogin();
+  var p=dcFind();
+  showM('<div class="top">'+dcAv(ME,64)+'<div><h3>'+esc(String(ME.n))+'</h3><div class="meta">Discord account</div></div></div>'+
+    (p?'<div class="dcrow">'+av(p.name,40)+'<b>'+esc(p.name)+'</b>'+rkb(p)+'</div><p class="meta">Your Minecraft account is linked.</p>':'<p class="meta">Your Minecraft account isn\u2019t linked yet.</p>')+
+    '<p>'+(p?'<button id="dmy" type="button">My profile</button> ':'<button id="dlk" type="button">Link Minecraft account</button> ')+'<button id="dcs" type="button">Cosmetics</button> <button id="dlo" type="button">Log out</button> '+CLOSE+'</p>',document.getElementById('dcbtn'));
+}
+function linkForm(){showM('<h3>Link Minecraft account</h3><p class="meta" style="font-size:13px">Type your Minecraft name as it appears in Bot Tiers.</p><p><input id="lmc" placeholder="Minecraft name" maxlength="16" style="width:100%" data-focus></p><p id="lme" class="meta" style="color:#c0392b" role="alert"></p><p><button id="lmnow" type="button">Link now</button> '+CLOSE+'</p><p><button id="lmgo" type="button" class="meta" style="font-size:12px">Send a code to an admin instead</button></p>')}
+function linkReq(){
+  var v=document.getElementById('lmc').value.trim(),er=document.getElementById('lme');
+  if(!ME)return;
+  if(!/^\w{3,16}$/.test(v)){er.textContent='Enter a valid Minecraft name (3\u201316 letters, numbers or _).';return}
+  var p=P.filter(function(x){return x.name.toLowerCase()===v.toLowerCase()})[0];
+  if(!p){er.textContent='That name isn\u2019t in Bot Tiers yet. Only players with a tier can be linked.';return}
+  if(lnk(p)){er.textContent=lnk(p)===ME.id?'That account is already linked to you.':'That Minecraft account is already linked to another Discord account. Ask an admin.';return}
+  var mine=dcFind();if(mine){er.textContent='Your Discord is already linked to '+mine.name+'.';return}
+  var code='BTL1.'+btoa(unescape(encodeURIComponent(JSON.stringify({i:ME.id,n:String(ME.n).slice(0,40),m:p.name}))));
+  showM('<h3>Send this to an admin</h3><p class="meta" style="font-size:13px">Copy this code and send it to a Bot Tiers admin on Discord. When they approve it, <b>'+esc(p.name)+'</b> is linked to your Discord account and you can open your profile from the account window.</p><p><textarea id="lmcode" readonly rows="4" style="width:100%;word-break:break-all">'+code+'</textarea></p><p><button id="lmcp" type="button">Copy code</button> '+CLOSE+'</p>');
+}
+function copyCode(){var t=document.getElementById('lmcode'),ok=false;t.select();try{ok=document.execCommand('copy')}catch(e){}try{if(navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true}}catch(e){}document.getElementById('lmcp').textContent=ok?'Copied \u2713':'Press Ctrl+C to copy'}
+function linkDone(p,shared){
+  render();
+  showM('<h3>Linked \u2713</h3><div class="dcrow">'+av(p.name,40)+'<b>'+esc(p.name)+'</b>'+rkb(p)+'</div><p class="meta" style="font-size:13px">This Minecraft account is now linked to your Discord account.'+(shared?'':' It is saved on this device only. Everyone else will see the link once the link server is set up.')+'</p><p><button id="dmy" type="button">My profile</button> '+CLOSE+'</p>');
+}
+function linkNow(){
+  var v=document.getElementById('lmc').value.trim(),er=document.getElementById('lme');
+  if(!ME)return;
+  if(!/^\w{3,16}$/.test(v)){er.textContent='Enter a valid Minecraft name (3\u201316 letters, numbers or _).';return}
+  var p=P.filter(function(x){return x.name.toLowerCase()===v.toLowerCase()})[0];
+  if(!p){er.textContent='That name isn\u2019t in Bot Tiers yet. Only players with a tier can be linked.';return}
+  var o=lnk(p);if(o){er.textContent=o===ME.id?'That account is already linked to you.':'That Minecraft account is already linked to another Discord account.';return}
+  var mine=dcFind();if(mine){er.textContent='Your Discord is already linked to '+mine.name+'.';return}
+  if(!LINK_API){LOC={i:ME.id,m:p.name.toLowerCase()};try{localStorage.setItem('bottiers:mylink',JSON.stringify(LOC))}catch(e){}return linkDone(p,false)}
+  var tk=null;try{tk=sessionStorage.getItem('bt:dct')}catch(e){}
+  if(!tk){er.textContent='Your Discord login expired. Close this, log in with Discord again, then link.';return}
+  er.textContent='Linking\u2026';
+  fetch(LINK_API+'/link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:tk,mc:p.name})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+    if(!x.ok){er.textContent=(x.j&&x.j.error)||'Couldn\u2019t link.';return}
+    LINKS[p.name.toLowerCase()]=ME.id;linkDone(p,true);
+  }).catch(function(){er.textContent='Couldn\u2019t reach the link server.'});
+}
+function loadLinks(){if(!LINK_API)return;fetch(LINK_API+'/links',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(o){if(o&&typeof o==='object'&&JSON.stringify(o)!==JSON.stringify(LINKS)){LINKS=o;render()}}).catch(function(){})}
+function adminLink(){if(!ADM)return;PLK=null;showM('<h3>Link a Discord account</h3><p class="meta" style="font-size:13px">Paste the code a player sent you.</p><p><textarea id="lkt" rows="4" style="width:100%" placeholder="BTL1.\u2026" data-focus></textarea></p><div id="lkr" class="meta" role="status"></div><p><button id="lkchk" type="button">Check code</button> <button id="lkok" type="button" hidden>Approve link</button> '+CLOSE+'</p>',document.getElementById('lkbtn'))}
+function lkCheck(){
+  var r=document.getElementById('lkr'),ok=document.getElementById('lkok');ok.hidden=true;PLK=null;
+  try{
+    var o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('lkt').value.trim().replace(/^BTL1\./,'')))));
+    if(!/^\d{15,22}$/.test(o.i)||!/^\w{3,16}$/.test(o.m))throw 0;
+    var p=P.filter(function(x){return x.name.toLowerCase()===o.m.toLowerCase()})[0],other=P.filter(function(x){return x.dc&&x.dc.id===o.i})[0];
+    if(!p){r.textContent='No player called '+o.m+' in the list.';return}
+    if(lnk(p)){r.textContent=p.name+' is already linked. Unlink it first from their profile.';return}
+    if(other){r.textContent='That Discord account is already linked to '+other.name+'.';return}
+    PLK={i:o.i,m:p.name};
+    r.innerHTML='Link Discord user <b>'+esc(String(o.n||'').slice(0,40))+'</b> (ID '+o.i+') to <b>'+esc(p.name)+'</b>?<br>Only approve it if you are sure this person owns that Minecraft account.';ok.hidden=false;
+  }catch(e){r.textContent='That isn\u2019t a valid link code.'}
+}
+function lkApprove(){if(!ADM||!PLK)return;var p=P.filter(function(x){return x.name===PLK.m})[0];if(!p||p.dc)return;p.dc={id:PLK.i};PLK=null;touch();render();closeP()}
+function cosmetics(){
+  var b=document.getElementById('cosbtn');
+  if(!ME)return showM('<h3>Cosmetics</h3><p class="meta">Log in with Discord and link your Minecraft account to use cosmetics.</p><p><button id="dcgo" type="button">Log in with Discord</button> '+CLOSE+'</p>',b);
+  if(!dcFind())return showM('<h3>Cosmetics</h3><p class="meta">Link your Minecraft account first. Then your cosmetics show up here.</p><p><button id="dlk" type="button">Link Minecraft account</button> '+CLOSE+'</p>',b);
+  showM('<h3>Cosmetics</h3>'+(COSMETICS.length?'<div class="cosg">'+COSMETICS.map(function(c){return '<div class="cos"><b>'+esc(c.name)+'</b><span class="meta">'+esc(c.desc||'')+'</span></div>'}).join('')+'</div>':'<p class="meta">Nothing here yet \u2013 cosmetics are coming soon.</p>')+'<p>'+CLOSE+'</p>',b);
+}
+var _op=openProfile;
+openProfile=function(n){
+  _op(n);
+  var p=P.filter(function(x){return x.name===n})[0],c=card.querySelector('.chips');if(!p||!c)return;
+  var h='';
+  if(lnk(p))h+='<span class="dcb">Discord linked \u2713</span>';
+  if(dcFind()===p)h+='<button id="csb" type="button">Cosmetics</button>';
+  if(ADM&&lnk(p))h+='<button id="ulk" type="button">Unlink Discord</button>';
+  if(h)c.insertAdjacentHTML('afterend','<div class="dcrow">'+h+'</div>');
+};
+card.addEventListener('click',function(e){
+  var t=e.target,id=t.id,hd=document.getElementById('hist'),nm=hd?hd.dataset.p:'';
+  if(id==='dmy'){var p=dcFind();if(p)openProfile(p.name)}
+  else if(id==='dlk')linkForm();
+  else if(id==='dcs'||id==='csb')cosmetics();
+  else if(id==='dlo'){ME=null;try{localStorage.removeItem('bottiers:dc')}catch(x){}drawDc();closeP()}
+  else if(id==='dcgo'){closeP();dcLogin()}
+  else if(id==='lmnow')linkNow();
+  else if(id==='lmgo')linkReq();
+  else if(id==='lmcp')copyCode();
+  else if(id==='lkchk')lkCheck();
+  else if(id==='lkok')lkApprove();
+  else if(id==='ulk'&&ADM){
+    var q=P.filter(function(x){return x.name===nm})[0];if(!q)return;
+    if(!t.dataset.c){t.dataset.c='1';t.textContent='Click again to unlink';t.className='danger';return}
+    var key=q.name.toLowerCase();
+    if(q.dc){delete q.dc;touch()}
+    if(LINKS[key]&&LINK_API){var ak=prompt('Link server admin key');if(!ak)return;fetch(LINK_API+'/link?mc='+encodeURIComponent(q.name),{method:'DELETE',headers:{Authorization:'Bearer '+ak}}).then(function(r){if(r.ok){delete LINKS[key];render();openProfile(nm)}else alert('The link server refused (wrong admin key?).')}).catch(function(){alert('Couldn\u2019t reach the link server.')});return}
+    render();openProfile(nm);
+  }
+});
+document.getElementById('dcbtn').onclick=function(){ME?acct():dcLogin()};
+document.getElementById('cosbtn').onclick=cosmetics;
+document.getElementById('lkbtn').onclick=adminLink;
+drawDc();dcCallback();loadLinks();setInterval(function(){if(!document.hidden)loadLinks()},60000);
 
 render();
 </script>
