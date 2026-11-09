@@ -668,7 +668,7 @@ function ghSave(retry){
 })();
 
 /* ---- Discord accounts: log in with Discord, link a Minecraft account, cosmetics ---- */
-var DISCORD_CLIENT_ID=''; // paste the Client ID of your Discord application here
+var DISCORD_CLIENT_ID='1569324607591424054'; // paste the Client ID of your Discord application here
 var LINK_API='';  // address of your link server (see link-worker.js); leave empty to keep links on each person's device only
 var LINKS={},LOC=null,ME=null,COSMETICS=[],PLK=null,CLOSE='<button id="x" type="button">Close</button>';
 try{ME=JSON.parse(localStorage.getItem('bottiers:dc')||'null');if(ME&&!/^\d{15,22}$/.test(ME.id))ME=null}catch(e){}
