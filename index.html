@@ -680,14 +680,12 @@ function dcAv(u,s){return u&&dcOK(u.a)?'<img class="av" alt="" width="'+s+'" hei
 function drawDc(){var b=document.getElementById('dcbtn');if(b)b.innerHTML=ME?dcAv(ME,20)+esc(String(ME.n)):'Log in with Discord'}
 function showM(html,from){lastF=from||document.activeElement;card.innerHTML=html;openM();var f=card.querySelector('[data-focus]');if(f)f.focus()}
 function dcLogin(){
-  var html=null;
-  if(window.claude&&claude.use)html='Discord login works on the GitHub version of the site, not on this claude.ai link.';
-  else if(!/^https?:$/.test(location.protocol))html='Open the site from its web address (https://\u2026), not from a file on your computer.';
-  else if(!DISCORD_CLIENT_ID)html=ADM?'Discord login isn\u2019t set up yet. In the Discord Developer Portal create an application, open OAuth2, and add this exact redirect URL: <b>'+esc(location.origin+location.pathname)+'</b>. Then paste the application\u2019s Client ID into <b>DISCORD_CLIENT_ID</b> near the end of index.html, or send the Client ID to Claude.':'Discord login isn\u2019t available yet.';
-  if(html)return showM('<h3>Log in with Discord</h3><p class="meta" style="font-size:13px">'+html+'</p><p>'+CLOSE+'</p>',document.getElementById('dcbtn'));
+  var redirect=location.origin+location.pathname;
+  if(!DISCORD_CLIENT_ID||!/^https?:$/.test(location.protocol))
+    return showM('<h3>Log in with Discord</h3><p class="meta" style="font-size:13px">'+(ADM?'Not set up yet: paste your Client ID into <b>DISCORD_CLIENT_ID</b> in index.html and add this redirect URL in the Discord Developer Portal (OAuth2): <b>'+esc(redirect)+'</b>':'Discord login isn\u2019t available right now.')+'</p><p>'+CLOSE+'</p>',document.getElementById('dcbtn'));
   var s=Math.random().toString(36).slice(2)+Date.now().toString(36);
   try{sessionStorage.setItem('bt:dcs',s)}catch(e){}
-  location.href='https://discord.com/api/oauth2/authorize?client_id='+encodeURIComponent(DISCORD_CLIENT_ID)+'&response_type=token&redirect_uri='+encodeURIComponent(location.origin+location.pathname)+'&scope=identify&state='+s;
+  location.href='https://discord.com/api/oauth2/authorize?client_id='+encodeURIComponent(DISCORD_CLIENT_ID)+'&response_type=token&redirect_uri='+encodeURIComponent(redirect)+'&scope=identify&state='+s;
 }
 function dcCallback(){
   var h=location.hash;if(h.indexOf('access_token=')<0)return;
@@ -700,7 +698,7 @@ function dcCallback(){
     if(!u||!/^\d{15,22}$/.test(u.id))return;
     ME={id:u.id,n:String(u.global_name||u.username||'Discord user').slice(0,40),a:dcOK(u.avatar)?u.avatar:''};
     try{localStorage.setItem('bottiers:dc',JSON.stringify(ME))}catch(e){}
-    drawDc();acct();
+    drawDc();
   }).catch(function(){});
 }
 function acct(){
