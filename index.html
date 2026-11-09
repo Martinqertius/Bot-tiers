@@ -708,7 +708,10 @@ function acct(){
     (p?'<div class="dcrow">'+av(p.name,40)+'<b>'+esc(p.name)+'</b>'+rkb(p)+'</div><p class="meta">Your Minecraft account is linked.</p>':'<p class="meta">Your Minecraft account isn\u2019t linked yet.</p>')+
     '<p>'+(p?'<button id="dmy" type="button">My profile</button> ':'<button id="dlk" type="button">Link Minecraft account</button> ')+'<button id="dcs" type="button">Cosmetics</button> <button id="dlo" type="button">Log out</button> '+CLOSE+'</p>',document.getElementById('dcbtn'));
 }
-function linkForm(){showM('<h3>Link Minecraft account</h3><p class="meta" style="font-size:13px">Type your Minecraft name as it appears in Bot Tiers.</p><p><input id="lmc" placeholder="Minecraft name" maxlength="16" style="width:100%" data-focus></p><p id="lme" class="meta" style="color:#c0392b" role="alert"></p><p><button id="lmnow" type="button">Link now</button> '+CLOSE+'</p><p><button id="lmgo" type="button" class="meta" style="font-size:12px">Send a code to an admin instead</button></p>')}
+var MC_SERVER='bot_fight.aternos.me';
+var VSALT='bt-verify-2026';  // any random text; change it to something of your own
+function vcode(i,m){var t=i+'|'+String(m).toLowerCase()+'|'+VSALT,h1=0xdeadbeef,h2=0x41c6ce57,k,c;for(k=0;k<t.length;k++){c=t.charCodeAt(k);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return((h2>>>0).toString(36)+(h1>>>0).toString(36)).toUpperCase().slice(0,6)}
+function linkForm(){showM('<h3>Link Minecraft account</h3><p class="meta" style="font-size:13px">Type your Minecraft name as it appears in Bot Tiers.</p><p><input id="lmc" placeholder="Minecraft name" maxlength="16" style="width:100%" data-focus></p><p id="lme" class="meta" style="color:#c0392b" role="alert"></p><p><button id="lmgo" type="button">Continue</button> '+CLOSE+'</p>')}
 function linkReq(){
   var v=document.getElementById('lmc').value.trim(),er=document.getElementById('lme');
   if(!ME)return;
@@ -717,47 +720,31 @@ function linkReq(){
   if(!p){er.textContent='That name isn\u2019t in Bot Tiers yet. Only players with a tier can be linked.';return}
   if(lnk(p)){er.textContent=lnk(p)===ME.id?'That account is already linked to you.':'That Minecraft account is already linked to another Discord account. Ask an admin.';return}
   var mine=dcFind();if(mine){er.textContent='Your Discord is already linked to '+mine.name+'.';return}
-  var code='BTL1.'+btoa(unescape(encodeURIComponent(JSON.stringify({i:ME.id,n:String(ME.n).slice(0,40),m:p.name}))));
-  showM('<h3>Send this to an admin</h3><p class="meta" style="font-size:13px">Copy this code and send it to a Bot Tiers admin on Discord. When they approve it, <b>'+esc(p.name)+'</b> is linked to your Discord account and you can open your profile from the account window.</p><p><textarea id="lmcode" readonly rows="4" style="width:100%;word-break:break-all">'+code+'</textarea></p><p><button id="lmcp" type="button">Copy code</button> '+CLOSE+'</p>');
+  showM('<h3>Verify it\u2019s you</h3><p class="meta" style="font-size:13px"><b>1.</b> Join <b>'+MC_SERVER+'</b> on Minecraft as <b>'+esc(p.name)+'</b>.<br><b>2.</b> Send a private message to an admin saying: <b>code</b><br><b>3.</b> The admin creates a unique code for you and sends it back in a private message. Enter it here:</p><p><input id="lvc" placeholder="Code from the admin" maxlength="6" style="width:100%;text-transform:uppercase" data-lm="'+esc(p.name)+'"></p><p id="lve" class="meta" style="color:#c0392b" role="alert"></p><p><button id="lvgo" type="button">Verify</button> '+CLOSE+'</p><p class="meta" style="font-size:12px">You can close this and come back later. Just enter the same Minecraft name again.</p>');
 }
-function copyCode(){var t=document.getElementById('lmcode'),ok=false;t.select();try{ok=document.execCommand('copy')}catch(e){}try{if(navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true}}catch(e){}document.getElementById('lmcp').textContent=ok?'Copied \u2713':'Press Ctrl+C to copy'}
+function linkVerify(){
+  var inp=document.getElementById('lvc'),er=document.getElementById('lve');
+  if(!ME||!inp)return;
+  var p=P.filter(function(x){return x.name===inp.getAttribute('data-lm')})[0];
+  if(!p)return;
+  if(inp.value.trim().toUpperCase()!==vcode('',p.name)){er.textContent='That code isn\u2019t right. Check the private message from the admin and try again.';return}
+  LOC={i:ME.id,m:p.name.toLowerCase()};try{localStorage.setItem('bottiers:mylink',JSON.stringify(LOC))}catch(e){}
+  linkDone(p,false);
+}
 function linkDone(p,shared){
   render();
   showM('<h3>Linked \u2713</h3><div class="dcrow">'+av(p.name,40)+'<b>'+esc(p.name)+'</b>'+rkb(p)+'</div><p class="meta" style="font-size:13px">This Minecraft account is now linked to your Discord account.'+(shared?'':' It is saved on this device only. Everyone else will see the link once the link server is set up.')+'</p><p><button id="dmy" type="button">My profile</button> '+CLOSE+'</p>');
 }
-function linkNow(){
-  var v=document.getElementById('lmc').value.trim(),er=document.getElementById('lme');
-  if(!ME)return;
-  if(!/^\w{3,16}$/.test(v)){er.textContent='Enter a valid Minecraft name (3\u201316 letters, numbers or _).';return}
-  var p=P.filter(function(x){return x.name.toLowerCase()===v.toLowerCase()})[0];
-  if(!p){er.textContent='That name isn\u2019t in Bot Tiers yet. Only players with a tier can be linked.';return}
-  var o=lnk(p);if(o){er.textContent=o===ME.id?'That account is already linked to you.':'That Minecraft account is already linked to another Discord account.';return}
-  var mine=dcFind();if(mine){er.textContent='Your Discord is already linked to '+mine.name+'.';return}
-  if(!LINK_API){LOC={i:ME.id,m:p.name.toLowerCase()};try{localStorage.setItem('bottiers:mylink',JSON.stringify(LOC))}catch(e){}return linkDone(p,false)}
-  var tk=null;try{tk=sessionStorage.getItem('bt:dct')}catch(e){}
-  if(!tk){er.textContent='Your Discord login expired. Close this, log in with Discord again, then link.';return}
-  er.textContent='Linking\u2026';
-  fetch(LINK_API+'/link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:tk,mc:p.name})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
-    if(!x.ok){er.textContent=(x.j&&x.j.error)||'Couldn\u2019t link.';return}
-    LINKS[p.name.toLowerCase()]=ME.id;linkDone(p,true);
-  }).catch(function(){er.textContent='Couldn\u2019t reach the link server.'});
-}
 function loadLinks(){if(!LINK_API)return;fetch(LINK_API+'/links',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(o){if(o&&typeof o==='object'&&JSON.stringify(o)!==JSON.stringify(LINKS)){LINKS=o;render()}}).catch(function(){})}
-function adminLink(){if(!ADM)return;PLK=null;showM('<h3>Link a Discord account</h3><p class="meta" style="font-size:13px">Paste the code a player sent you.</p><p><textarea id="lkt" rows="4" style="width:100%" placeholder="BTL1.\u2026" data-focus></textarea></p><div id="lkr" class="meta" role="status"></div><p><button id="lkchk" type="button">Check code</button> <button id="lkok" type="button" hidden>Approve link</button> '+CLOSE+'</p>',document.getElementById('lkbtn'))}
+function adminLink(){if(!ADM)return;showM('<h3>Create a code for a player</h3><p class="meta" style="font-size:13px">When a player sends you \u201ccode\u201d in Minecraft, type their Minecraft name here.</p><p><input id="lkt" placeholder="Minecraft name" maxlength="16" style="width:100%" data-focus></p><div id="lkr" class="meta" role="status"></div><p><button id="lkchk" type="button">Create code</button> '+CLOSE+'</p>',document.getElementById('lkbtn'))}
 function lkCheck(){
-  var r=document.getElementById('lkr'),ok=document.getElementById('lkok');ok.hidden=true;PLK=null;
-  try{
-    var o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('lkt').value.trim().replace(/^BTL1\./,'')))));
-    if(!/^\d{15,22}$/.test(o.i)||!/^\w{3,16}$/.test(o.m))throw 0;
-    var p=P.filter(function(x){return x.name.toLowerCase()===o.m.toLowerCase()})[0],other=P.filter(function(x){return x.dc&&x.dc.id===o.i})[0];
-    if(!p){r.textContent='No player called '+o.m+' in the list.';return}
-    if(lnk(p)){r.textContent=p.name+' is already linked. Unlink it first from their profile.';return}
-    if(other){r.textContent='That Discord account is already linked to '+other.name+'.';return}
-    PLK={i:o.i,m:p.name};
-    r.innerHTML='Link Discord user <b>'+esc(String(o.n||'').slice(0,40))+'</b> (ID '+o.i+') to <b>'+esc(p.name)+'</b>?<br>Only approve it if you are sure this person owns that Minecraft account.';ok.hidden=false;
-  }catch(e){r.textContent='That isn\u2019t a valid link code.'}
+  var r=document.getElementById('lkr'),v=document.getElementById('lkt').value.trim();
+  if(!ADM)return;
+  var p=P.filter(function(x){return x.name.toLowerCase()===v.toLowerCase()})[0];
+  if(!p){r.textContent='No player called \u201c'+v+'\u201d in the list.';return}
+  if(lnk(p)){r.textContent=p.name+' is already linked. Unlink it first from their profile.';return}
+  r.innerHTML='Code for <b>'+esc(p.name)+'</b>: <b style="font-size:22px;letter-spacing:2px">'+vcode('',p.name)+'</b><br>Send it to them in a private message in Minecraft (<b>/msg '+esc(p.name)+' '+vcode('',p.name)+'</b>).';
 }
-function lkApprove(){if(!ADM||!PLK)return;var p=P.filter(function(x){return x.name===PLK.m})[0];if(!p||p.dc)return;p.dc={id:PLK.i};PLK=null;touch();render();closeP()}
 function cosmetics(){
   var b=document.getElementById('cosbtn');
   if(!ME)return showM('<h3>Cosmetics</h3><p class="meta">Log in with Discord and link your Minecraft account to use cosmetics.</p><p><button id="dcgo" type="button">Log in with Discord</button> '+CLOSE+'</p>',b);
@@ -781,11 +768,9 @@ card.addEventListener('click',function(e){
   else if(id==='dcs'||id==='csb')cosmetics();
   else if(id==='dlo'){ME=null;try{localStorage.removeItem('bottiers:dc')}catch(x){}drawDc();closeP()}
   else if(id==='dcgo'){closeP();dcLogin()}
-  else if(id==='lmnow')linkNow();
+  else if(id==='lvgo')linkVerify();
   else if(id==='lmgo')linkReq();
-  else if(id==='lmcp')copyCode();
   else if(id==='lkchk')lkCheck();
-  else if(id==='lkok')lkApprove();
   else if(id==='ulk'&&ADM){
     var q=P.filter(function(x){return x.name===nm})[0];if(!q)return;
     if(!t.dataset.c){t.dataset.c='1';t.textContent='Click again to unlink';t.className='danger';return}
