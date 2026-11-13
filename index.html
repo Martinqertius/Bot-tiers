@@ -641,7 +641,7 @@ function dbFlush(force){
 var ONGH=!(window.claude&&claude.use),GH=null;
 try{GH=JSON.parse(localStorage.getItem('bottiers:gh')||'null')}catch(e){}
 function applyState(s){try{if(!s||!Array.isArray(s.P))return;if(JSON.stringify(s.P)===JSON.stringify(P)&&JSON.stringify(s.BAN||[])===JSON.stringify(BAN)&&JSON.stringify(s.LOG||LOG)===JSON.stringify(LOG))return;P.length=0;s.P.forEach(function(x){P.push(x)});BAN.length=0;(s.BAN||[]).forEach(function(x){BAN.push(x)});LOG=s.LOG||LOG;drawTicker();render()}catch(e){}}
-function ghLoad(){if(PEND||PUBBING||Date.now()<TSHOLD)return;fetch('data.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(applyState).catch(function(){})}
+function ghLoad(){if(PEND||PUBBING)return;fetch('data.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(applyState).catch(function(){})}
 function ghHdr(){return {Authorization:'Bearer '+GH.token,Accept:'application/vnd.github+json'}}
 function ghUrl(){return 'https://api.github.com/repos/'+GH.repo+'/contents/data.json'}
 function ghAdminLoad(){if(!ONGH||!GH||!ADM||PEND||PUBBING)return;var h=ghHdr();h.Accept='application/vnd.github.raw+json';fetch(ghUrl()+'?ref='+encodeURIComponent(GH.branch)+'&t='+Date.now(),{headers:h,cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(applyState).catch(function(){})}
@@ -895,46 +895,40 @@ function tsEl(i){return document.getElementById(i)}
 function tsMsg(t,bad){var r=tsEl('tsr');if(r){r.textContent=t;r.style.color=bad?'#c0392b':''}}
 function tsOk(){if(TSP){TSP=false;tsMsg('Saved \u2713 everyone can see it.')}}
 function tsFail(){if(TSP){TSP=false;tsMsg('Applied here, but it couldn\u2019t be saved for everyone \u2013 this page only lets the owner save.',true)}}
-var TSHOLD=0;
-function tsSave(act){
-  if(ADM)return touch();
-  if(DB){TSP=true;tsMsg('Saving\u2026');return dbFlush(true)}
-  if(ONGH&&GH)return tsGh(act);
-  tsMsg('Applied on this device only \u2013 press \u201cSet up saving\u201d below to save for everyone.',true);
+/* ---- requests: testers send a code to the owner, the owner approves it ---- */
+var REQ=[];try{REQ=JSON.parse(localStorage.getItem('bottiers:req')||'[]')||[]}catch(e){}
+function rqSave(){try{localStorage.setItem('bottiers:req',JSON.stringify(REQ))}catch(e){}}
+function rqEnc(o){return 'BT1.'+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+function rqDec(s){
+  try{
+    s=String(s).trim();if(s.indexOf('BT1.')!==0)return null;
+    var o=JSON.parse(decodeURIComponent(escape(atob(s.slice(4)))));
+    if(!o||(o.type!=='give'&&o.type!=='eval')||!/^\w{3,16}$/.test(String(o.me))||!/^\w{3,16}$/.test(String(o.n))||MODES.indexOf(o.kit)<1)return null;
+    if(o.type==='give'&&TIERS.indexOf(o.tier)<0)return null;
+    return o;
+  }catch(e){return null}
 }
-function tsGh(act,retry){
-  TSP=true;tsMsg('Saving\u2026');
-  var u=ghUrl()+'?ref='+encodeURIComponent(GH.branch)+'&t='+Date.now(),sha=null,fail=function(m){TSP=false;tsMsg(m,true)};
-  fetch(u,{headers:ghHdr(),cache:'no-store'}).then(function(r){return r.status===404?{}:r.json()}).then(function(j){
-    sha=j&&j.sha||null;var h=ghHdr();h.Accept='application/vnd.github.raw+json';
-    return fetch(u,{headers:h,cache:'no-store'});
-  }).then(function(r){return r.ok?r.json():{P:[],BAN:[],LOG:[]}}).then(function(S){
-    S.P=S.P||[];S.BAN=S.BAN||[];S.LOG=S.LOG||[];
-    var r=tsApply(act,S);
-    if(!r.ok)return fail(r.msg+' (the saved list is different from what you see)');
-    var o={message:'Tester update',content:btoa(unescape(encodeURIComponent(JSON.stringify({v:1,P:S.P,BAN:S.BAN,LOG:S.LOG})))),branch:GH.branch};if(sha)o.sha=sha;
-    return fetch(ghUrl(),{method:'PUT',headers:ghHdr(),body:JSON.stringify(o)}).then(function(r2){
-      if(r2.ok){TSP=false;TSHOLD=Date.now()+150000;tsMsg('Saved \u2713 everyone sees it in about a minute.');return}
-      if(r2.status===409&&!retry)return tsGh(act,true);
-      fail('GitHub refused the save ('+r2.status+'). Check the token and repository.');
-    });
-  }).catch(function(){fail('Couldn\u2019t reach GitHub.')});
+function tsDry(act){
+  var lc=function(s){return String(s).toLowerCase()},pick=function(L){return L.filter(function(x){return lc(x.name)===lc(act.me)||lc(x.name)===lc(act.n)}).map(function(x){return JSON.parse(JSON.stringify(x))})};
+  return tsApply(act,{P:pick(P),BAN:pick(BAN),LOG:[]});
 }
-function tsGhForm(){
-  var g=GH||{repo:'',branch:'main',token:''};
-  showM('<h3>Set up saving</h3><p class="meta" style="font-size:13px">Ask the admin for the repository name and a token. They stay on this device only.</p><p><input id="tgr" placeholder="owner/repo" value="'+esc(g.repo)+'" style="width:100%" data-focus></p><p><input id="tgb" placeholder="branch" value="'+esc(g.branch)+'" style="width:100%"></p><p><input id="tgt" type="password" placeholder="Token" value="'+esc(g.token)+'" style="width:100%"></p><p id="tge" class="meta" style="color:#c0392b" role="alert"></p><p><button id="tgok" type="button">Save &amp; test</button> <button id="tgno" type="button">Back</button></p>');
+function rqCheck(o){
+  var d=tsDry(o);if(!d.ok)return d;
+  var tp=P.filter(function(x){return x.name.toLowerCase()===o.me.toLowerCase()})[0],l=tp&&lnk(tp);
+  if(l&&String(o.d)!==String(l))return {ok:false,msg:'The Discord account on this request isn\u2019t the one linked to '+tp.name+'.'};
+  return d;
 }
-function tsGhTest(){
-  var er=tsEl('tge'),n={repo:tsEl('tgr').value.trim(),branch:tsEl('tgb').value.trim()||'main',token:tsEl('tgt').value.trim()};
-  if(!/^[\w.-]+\/[\w.-]+$/.test(n.repo)||!n.token){er.textContent='Enter the repo as owner/repo and paste the token.';return}
-  er.textContent='Testing\u2026';
-  fetch('https://api.github.com/repos/'+n.repo,{headers:{Authorization:'Bearer '+n.token,Accept:'application/vnd.github+json'}}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})}).then(function(x){
-    if(!x.ok){er.textContent='GitHub says: '+(x.j&&x.j.message||'no access');return}
-    if(x.j.permissions&&!x.j.permissions.push){er.textContent='That token can read but not write.';return}
-    GH=n;try{localStorage.setItem('bottiers:gh',JSON.stringify(n))}catch(e){}
-    testerTools('');
-  }).catch(function(){er.textContent='Couldn\u2019t reach GitHub.'});
+function rqDesc(o){return o.type==='give'?'Give <b>'+esc(o.tier)+'</b> to <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>':'Toggle <b>+Eval</b> on <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>'}
+function reqModal(msg){
+  if(!ADM)return;
+  var h='<h3>Tester requests</h3><p class="meta" style="font-size:13px">Testers send you a request code in a private message. Paste it here, check who sent it, then approve or reject.</p><p><textarea id="rqin" rows="3" placeholder="Paste request code(s) here" aria-label="Request codes"></textarea></p><p><button id="rqadd" type="button">Add</button></p><p id="rqm" class="meta" role="status">'+esc(msg||'')+'</p>';
+  h+=REQ.length?REQ.map(function(raw,i){
+    var o=rqDec(raw);if(!o)return '';var d=rqCheck(o);
+    return '<div class="cos" style="margin-top:8px"><div><b>'+esc(o.me)+'</b> <span class="meta">(Discord: '+esc(String(o.dn||'?'))+', id '+esc(String(o.d||'?'))+')</span></div><div>'+rqDesc(o)+'</div><div class="meta" style="color:'+(d.ok?'#1f9d55':'#c0392b')+'">'+(d.ok?'Allowed \u2713':'Not allowed: '+esc(d.msg))+'</div><div class="dcrow"><button type="button" data-rqa="'+i+'"'+(d.ok?'':' disabled')+'>Approve</button><button type="button" class="danger" data-rqr="'+i+'">Reject</button></div></div>';
+  }).join(''):'<p class="empty">No requests waiting.</p>';
+  showM(h+'<p>'+CLOSE+'</p>',tsEl('rqbtn'));
 }
+function drawRq(){var b=tsEl('rqbtn');if(b)b.textContent='Requests'+(REQ.length?' ('+REQ.length+')':'')}
 function tsOpts(me,kit){var i=TIERS.indexOf(me.t[kit]);return TIERS.filter(function(t,k){return k>=i}).map(function(t){return '<option>'+t+'</option>'}).join('')}
 function tsMe(){return ME?dcFind():null}
 function tsFindP(n){return P.filter(function(x){return x.name.toLowerCase()===n.toLowerCase()})[0]}
@@ -943,7 +937,7 @@ function testerTools(pref){
   if(!me)return showM('<h3>Tester tools</h3><p class="meta">Log in with Discord and link your Minecraft account first.</p><p>'+CLOSE+'</p>',b);
   var kits=testerKits(me).filter(function(m){return me.t[m]});
   if(!kits.length)return showM('<h3>Tester tools</h3><p class="meta">'+(testerKits(me).length?'You need a tier of your own in the kit you test before you can give tiers.':'You aren\u2019t a tester yet.')+'</p><p>'+CLOSE+'</p>',b);
-  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can give a tier up to your own tier in that kit (for example HT3 lets you give HT3 or lower), and +Eval.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p id="tsr" class="meta" role="status"></p>'+(ONGH&&!GH&&!ADM?'<p class="meta" style="font-size:12px">Saving for everyone isn\u2019t set up on this device. <button type="button" id="tsgh">Set up saving</button></p>':'')+'<p class="dcrow"><button id="tsgo" type="button">Give tier</button><button id="tsev" type="button">Toggle +Eval</button> '+CLOSE+'</p>',b);
+  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button> '+CLOSE+'</p>',b);
 }
 function tsCheck(){
   var me=tsMe();if(!me)return null;
@@ -977,34 +971,45 @@ function tsApply(act,S){
   var had=!!e.ev;if(had)delete e.ev;else e.ev={ts:Date.now(),by:meP.name};
   return {ok:true,msg:had?'+Eval removed from '+p.name+'.':'+Eval given to '+p.name+'.',p:p};
 }
-function tsGive(){
+function tsRequest(type){
   var c=tsCheck();if(!c)return;
-  var act={type:'give',me:c.me.name,n:c.n,kit:c.kit,tier:tsEl('tst').value},r=tsApply(act,{P:P,BAN:BAN,LOG:LOG});
-  if(!r.ok)return tsMsg(r.msg,true);
-  mode=act.kit;flash=r.p.name;drawTicker();render();tsMsg(r.msg);tsSave(act);
-}
-function tsEval(){
-  var c=tsCheck();if(!c)return;
-  var act={type:'eval',me:c.me.name,n:c.n,kit:c.kit},r=tsApply(act,{P:P,BAN:BAN,LOG:LOG});
-  if(!r.ok)return tsMsg(r.msg,true);
-  render();tsMsg(r.msg);tsSave(act);
+  var act={type:type,me:c.me.name,n:c.n,kit:c.kit};if(type==='give')act.tier=tsEl('tst').value;
+  if(ADM){var r0=tsApply(act,{P:P,BAN:BAN,LOG:LOG});if(!r0.ok)return tsMsg(r0.msg,true);if(type==='give'){mode=c.kit;flash=r0.p.name;drawTicker()}render();touch();return tsMsg(r0.msg)}
+  var r=tsDry(act);if(!r.ok)return tsMsg(r.msg,true);
+  act.d=ME.id;act.dn=String(ME.n);act.ts=Date.now();
+  tsMsg('Request ready. Send this code to the owner in a private message on Discord. The change happens when they approve it.');
+  tsEl('tsc').innerHTML='<textarea id="tscode" rows="3" readonly style="width:100%" aria-label="Request code">'+rqEnc(act)+'</textarea><p><button type="button" id="tscopy">Copy code</button></p>';
 }
 (function(){
   var b=document.createElement('button');b.id='tsbtn';b.type='button';b.textContent='Tester tools';b.hidden=true;
   var cb=document.getElementById('cosbtn');cb.parentNode.insertBefore(b,cb);
   b.onclick=function(){testerTools('')};
+  var q=document.createElement('button');q.id='rqbtn';q.type='button';q.textContent='Requests';cb.parentNode.insertBefore(q,cb);q.onclick=function(){reqModal('')};
+  var st=document.createElement('style');st.textContent='body:not(.admin) #rqbtn{display:none!important}#rqbtn{background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:700}';document.head.appendChild(st);
+  drawRq();
 })();
 function drawTs(){var b=tsEl('tsbtn');if(!b)return;var me=tsMe();b.hidden=!(me&&testerKits(me).length)}
-var _r0=render;render=function(){_r0.apply(this,arguments);drawTs()};
+var _r0=render;render=function(){_r0.apply(this,arguments);drawTs();drawRq()};
 var _dd0=drawDc;drawDc=function(){_dd0();drawTs()};
 card.addEventListener('click',function(e){
   var t=e.target.closest?e.target.closest('button'):null;if(!t)return;
   if(t.id==='tsopen'){var hd=tsEl('hist');testerTools(hd?hd.dataset.p:'')}
-  else if(t.id==='tsgo')tsGive();
-  else if(t.id==='tsev')tsEval();
-  else if(t.id==='tsgh')tsGhForm();
-  else if(t.id==='tgok')tsGhTest();
-  else if(t.id==='tgno')testerTools('');
+  else if(t.id==='tsgo')tsRequest('give');
+  else if(t.id==='tsev')tsRequest('eval');
+  else if(t.id==='tscopy'){var ta=tsEl('tscode');if(ta){ta.select();try{navigator.clipboard.writeText(ta.value)}catch(x){try{document.execCommand('copy')}catch(y){}}t.textContent='Copied \u2713'}}
+  else if(ADM&&t.id==='rqadd'){
+    var toks=(tsEl('rqin').value||'').split(/\s+/).filter(function(s){return s.indexOf('BT1.')===0}),add=0,bad=0;
+    toks.forEach(function(s){if(!rqDec(s))bad++;else if(REQ.indexOf(s)<0){REQ.push(s);add++}});
+    rqSave();drawRq();reqModal(!toks.length?'No request code found in that text.':(add+' added'+(bad?', '+bad+' invalid':'')+'.'));
+  }
+  else if(ADM&&t.dataset.rqr!==undefined){REQ.splice(+t.dataset.rqr,1);rqSave();drawRq();reqModal('Rejected.')}
+  else if(ADM&&t.dataset.rqa!==undefined){
+    var o=rqDec(REQ[+t.dataset.rqa]);if(!o)return;
+    var rr=rqCheck(o);if(!rr.ok)return reqModal(rr.msg);
+    var ap=tsApply(o,{P:P,BAN:BAN,LOG:LOG});if(!ap.ok)return reqModal(ap.msg);
+    if(o.type==='give'){mode=o.kit;flash=ap.p.name;drawTicker()}
+    REQ.splice(+t.dataset.rqa,1);rqSave();drawRq();render();touch();reqModal('Approved: '+ap.msg);
+  }
 });
 card.addEventListener('change',function(e){
   if(e.target.id!=='tsk')return;var me=tsMe();if(me&&me.t[e.target.value])tsEl('tst').innerHTML=tsOpts(me,e.target.value);
