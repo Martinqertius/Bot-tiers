@@ -141,6 +141,24 @@ body:not(.admin) #lkbtn{display:none!important}
 .admx{margin-top:14px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px}.admx h4{margin:10px 0 6px}.admx h4:first-child{margin-top:0}.admx p{margin:6px 0 0}
 .admx .dcrow{margin-top:6px}
 body:not(.admin) .admx{display:none!important}
+.row.cs{position:relative}
+.row.cs1{background:linear-gradient(90deg,color-mix(in srgb,#f7cf4f 24%,var(--panel)),var(--panel) 80%);border-color:color-mix(in srgb,#d4a017 70%,var(--line))}
+.row.cs2{background:linear-gradient(90deg,color-mix(in srgb,#f5b942 34%,var(--panel)),color-mix(in srgb,#f7cf4f 14%,var(--panel)));border-color:#d4a017}
+.row.cs3{background:linear-gradient(110deg,color-mix(in srgb,#f5b942 38%,var(--panel)),color-mix(in srgb,#fff3b0 18%,var(--panel)),color-mix(in srgb,#f5b942 38%,var(--panel)));background-size:220% 100%;animation:csflow 6s linear infinite;border-color:#e0a82e;box-shadow:0 0 14px rgba(247,207,79,.4)}
+.row.cs4{background:linear-gradient(120deg,color-mix(in srgb,#f7cf4f 38%,var(--panel)),color-mix(in srgb,#d4a017 26%,var(--panel)));border-color:#f7cf4f;box-shadow:0 0 18px rgba(247,207,79,.55)}
+@keyframes csflow{to{background-position:-220% 0}}
+.cbg{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;pointer-events:none;opacity:.55;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='70' viewBox='0 0 140 70'%3E%3Cg fill='none' stroke='%239a6f00' stroke-linecap='round'%3E%3Ccircle cx='70' cy='35' r='28' stroke-width='1.6'/%3E%3Ccircle cx='70' cy='35' r='25.5' stroke-width='.6'/%3E%3Cpath stroke-width='1.4' d='M70.0 12.0L70.0 8.0 M82.5 13.3L83.5 11.6 M91.7 22.5L93.4 21.5 M93.0 35.0L97.0 35.0 M91.7 47.5L93.4 48.5 M82.5 56.7L83.5 58.4 M70.0 58.0L70.0 62.0 M57.5 56.7L56.5 58.4 M48.3 47.5L46.6 48.5 M47.0 35.0L43.0 35.0 M48.3 22.5L46.6 21.5 M57.5 13.3L56.5 11.6'/%3E%3Cline x1='70' y1='35' x2='70' y2='17' stroke-width='2.2'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 70 35' to='360 70 35' dur='10s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='70' y1='35' x2='70' y2='24' stroke-width='3'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 70 35' to='360 70 35' dur='120s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='70' y1='38' x2='70' y2='12' stroke='%23c0392b' stroke-width='1'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 70 35' to='360 70 35' dur='3s' repeatCount='indefinite'/%3E%3C/line%3E%3C/g%3E%3Ccircle cx='70' cy='35' r='2' fill='%239a6f00'/%3E%3Cg fill='%239a6f00' opacity='.6'%3E%3Ccircle cx='6' cy='35' r='1.6'/%3E%3Ccircle cx='134' cy='35' r='1.6'/%3E%3C/g%3E%3C/svg%3E") repeat-x left center/auto 100%}
+.row.cs4>*:not(.cbg){position:relative;z-index:1}
+.tmc.l2 .mm,.tmc.l3 .mm,.tmc.l4 .mm{animation:tmrot 4s linear infinite}
+.tmc.l2 .hh,.tmc.l3 .hh,.tmc.l4 .hh{animation:tmrot 24s linear infinite}
+.tmc .sc,.tmc .orb{transform-origin:16px 16px}
+.tmc.l2 .sc,.tmc.l3 .sc,.tmc.l4 .sc{animation:tmrot 2s linear infinite}
+.tmc .orb{animation:tmrot 5s linear infinite}
+.tmc.l3 .tmr,.tmc.l4 .tmr{animation:tmring 2.4s ease-out infinite}
+.tmc.l4{filter:drop-shadow(0 0 4px rgba(247,207,79,.9))}
+@keyframes tmrot{to{transform:rotate(360deg)}}
+.tmc.spin.spin .tmr{animation:tmring 1.5s ease-out}.tmc.spin.spin .mm{animation:tmmin 1.5s cubic-bezier(.5,0,.2,1)}.tmc.spin.spin .hh{animation:tmhr 1.5s cubic-bezier(.5,0,.2,1)}
+
 #tsbtn[hidden]{display:none}#tsbtn{background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:700}
 </style>
 </head>
@@ -215,7 +233,7 @@ function render(){
     var all=P.slice().sort(function(a,b){return pts(b)-pts(a)});
     L.forEach(function(p){
       var chips=Object.keys(p.t).map(function(m){return '<span class="chip '+cls(p.t[m])+'" title="'+m+'">'+icon(m,14)+p.t[m]+"</span>"}).join("");
-      h+='<div class="row'+(flash===p.name?' flash':'')+'" tabindex="0" role="button" data-n="'+esc(p.name)+'"><div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+tbg(p)+'</div><div class="chips">'+chips+'</div></div><div class="cx">'+cxHtml(p,32)+'</div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
+      h+='<div class="row'+(flash===p.name?' flash':'')+rowCls(p)+'" tabindex="0" role="button" data-n="'+esc(p.name)+'">'+rowBg(p)+'<div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+tbg(p)+'</div><div class="chips">'+chips+'</div></div><div class="cx">'+cxHtml(p,32)+'</div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
     });
   }else{
     h=tstrip(mode)+'<div class="cols">';
@@ -763,13 +781,26 @@ function lkCheck(){
   r.innerHTML='Code for <b>'+esc(p.name)+'</b>: <b style="font-size:22px;letter-spacing:2px">'+vcode('',p.name)+'</b><br>Send it to them in a private message in Minecraft (<b>/msg '+esc(p.name)+' '+vcode('',p.name)+'</b>).';
 }
 /* ---- cosmetics + tester roles ---- */
-function clockSvg(s){return '<svg class="tmc" width="'+s+'" height="'+s+'" viewBox="0 0 32 32" aria-hidden="true"><circle class="tmr" cx="16" cy="16" r="14" fill="none" stroke="#f7cf4f" stroke-width="2"/><circle cx="16" cy="16" r="14" fill="#fff6cf" stroke="#d4a017" stroke-width="2.5"/><path d="M16 4.8v2M27.2 16h-2M16 27.2v-2M4.8 16h2" stroke="#7a5a00" stroke-width="1.6" stroke-linecap="round"/><g transform="rotate(-60 16 16)"><g class="hh"><path d="M16 16V10" stroke="#3a2a00" stroke-width="2.4" stroke-linecap="round"/></g></g><g transform="rotate(60 16 16)"><g class="mm"><path d="M16 16V7" stroke="#3a2a00" stroke-width="1.8" stroke-linecap="round"/></g></g><circle cx="16" cy="16" r="1.7" fill="#3a2a00"/></svg>'}
-COSMETICS=[{id:'time',name:'Time',desc:'Have 50+ hours on bot fight official server',draw:clockSvg}];
+function clockSvg(s,lv){
+  lv=lv||1;
+  var d='<svg class="tmc l'+lv+'" width="'+s+'" height="'+s+'" viewBox="0 0 32 32" aria-hidden="true"><circle class="tmr" cx="16" cy="16" r="14" fill="none" stroke="#f7cf4f" stroke-width="2"/>';
+  if(lv>=3)d+='<g class="orb"><circle cx="16" cy="-1.5" r="1.4" fill="#f7cf4f"/><circle cx="33.5" cy="16" r="1.2" fill="#fff3b0"/><circle cx="16" cy="33.5" r="1.4" fill="#f7cf4f"/><circle cx="-1.5" cy="16" r="1.2" fill="#fff3b0"/></g>';
+  d+='<circle cx="16" cy="16" r="14" fill="#fff6cf" stroke="'+(lv>=2?'#c8921a':'#d4a017')+'" stroke-width="2.5"/>';
+  if(lv>=2)d+='<circle cx="16" cy="16" r="11.3" fill="none" stroke="#f1c350" stroke-width=".8"/><path d="M22 6.2l-.8 1.4M25.8 10l-1.4.8M25.8 22l-1.4-.8M22 25.8l-.8-1.4M10 25.8l.8-1.4M6.2 22l1.4-.8M6.2 10l1.4.8M10 6.2l.8 1.4" stroke="#b08a2a" stroke-width="1" stroke-linecap="round"/>';
+  d+='<path d="M16 4.8v2M27.2 16h-2M16 27.2v-2M4.8 16h2" stroke="#7a5a00" stroke-width="1.6" stroke-linecap="round"/><g transform="rotate(-60 16 16)"><g class="hh"><path d="M16 16V10" stroke="#3a2a00" stroke-width="2.4" stroke-linecap="round"/></g></g><g transform="rotate(60 16 16)"><g class="mm"><path d="M16 16V7" stroke="#3a2a00" stroke-width="1.8" stroke-linecap="round"/></g></g>';
+  if(lv>=2)d+='<g class="sc"><path d="M16 19V5.6" stroke="#d9442b" stroke-width="1" stroke-linecap="round"/></g>';
+  return d+'<circle cx="16" cy="16" r="1.7" fill="#3a2a00"/></svg>';
+}
+COSMETICS=[5,10,25,50].map(function(h,i){return {id:'time'+(i+1),g:'time',lv:i+1,hrs:h,name:'Time',desc:'Have '+h+'+ hours on bot fight official server',draw:function(s){return clockSvg(s,i+1)}}});
+function cnorm(id){return id==='time'?'time4':id}
 var LOCEQ={};try{LOCEQ=JSON.parse(localStorage.getItem('bottiers:eq')||'{}')||{}}catch(e){}
-function cosOf(id){var L=COSMETICS||[],i;for(i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
-function owns(p,id){return !!(p.cos&&p.cos.indexOf(id)>-1)}
-function eqOf(p){var id=p.eq||'',l=LOCEQ&&LOCEQ[p.name.toLowerCase()];if(l&&typeof l==='object'&&l.t>(p.eqt||0)&&ME&&dcFind()===p)id=l.e||'';return owns(p,id)&&cosOf(id)?id:''}
-function cxHtml(p,s){var c=cosOf(eqOf(p));return c?'<span class="cosb" data-cn="'+esc(p.name)+'" title="'+esc(c.name+' \u2013 '+c.desc)+'">'+c.draw(s)+'</span>':''}
+function cosOf(id){id=cnorm(id);var L=COSMETICS||[],i;for(i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
+function topLv(p,g){var m=0;(p.cos||[]).forEach(function(i){var c=cosOf(i);if(c&&c.g===g&&c.lv>m)m=c.lv});return m}
+function owns(p,id){var c=cosOf(id);return !!c&&topLv(p,c.g)>=c.lv}
+function eqOf(p){var id=cnorm(p.eq||''),l=LOCEQ&&LOCEQ[p.name.toLowerCase()];if(l&&typeof l==='object'&&l.t>(p.eqt||0)&&ME&&dcFind()===p)id=cnorm(l.e||'');return owns(p,id)&&cosOf(id)?id:''}
+function rowCls(p){var c=cosOf(eqOf(p));return c?' cs cs'+c.lv:''}
+function rowBg(p){var c=cosOf(eqOf(p));return c&&c.lv>=4?'<div class="cbg" aria-hidden="true"></div>':''}
+function cxHtml(p,s){var c=cosOf(eqOf(p));return c?'<span class="cosb" data-cn="'+esc(p.name)+'" title="'+esc(c.name+' (Lv '+c.lv+') \u2013 '+c.desc)+'">'+c.draw(s)+'</span>':''}
 function setEq(p,id){
   var t=Date.now();
   if(ADM){p.eq=id;p.eqt=t;touch()}
@@ -799,9 +830,9 @@ function cosmetics(){
   var p=dcFind();
   if(!p)return showM('<h3>Cosmetics</h3><p class="meta">Link your Minecraft account first. Then your cosmetics show up here.</p><p><button id="dlk" type="button">Link Minecraft account</button> '+CLOSE+'</p>',b);
   var cur=eqOf(p);
-  showM('<h3>Cosmetics</h3><p class="meta" style="font-size:13px">An equipped cosmetic shows next to your name on the leaderboard. Cosmetics are given to you by an admin.</p><div class="cosg">'+COSMETICS.map(function(c){
+  showM('<h3>Cosmetics</h3><p class="meta" style="font-size:13px">An equipped cosmetic shows next to your name and colors your bar on the leaderboard. Cosmetics are given to you by an admin.</p><div class="cosg">'+COSMETICS.map(function(c){
     var o=owns(p,c.id);
-    return '<div class="cos'+(o?'':' lock')+'"><div class="cosp">'+c.draw(44)+'</div><b>'+esc(c.name)+'</b><span class="meta">'+esc(c.desc)+'</span>'+(o?'<button type="button" data-eq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button>':'<span class="meta">\ud83d\udd12 Locked</span>')+'</div>';
+    return '<div class="cos'+(o?'':' lock')+'"><div class="cosp">'+c.draw(44)+'</div><div><b>'+esc(c.name)+'</b> <span class="tb" style="margin:0">Lv '+c.lv+'</span></div><span class="meta">'+esc(c.desc)+'</span>'+(o?'<button type="button" data-eq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button>':'<span class="meta">\ud83d\udd12 Locked</span>')+'</div>';
   }).join('')+'</div><p>'+CLOSE+'</p>',b);
 }
 function admBlock(p){
@@ -810,9 +841,12 @@ function admBlock(p){
   if(!free.length)h+='<p class="meta">Tester in every kit.</p>';
   else h+='<p class="dcrow"><select id="trk" aria-label="Kit">'+free.map(function(m){return '<option>'+m+'</option>'}).join('')+'</select><button type="button" id="trg">Give tester role</button></p>';
   if(free.length)h+='<p class="meta" style="font-size:12px">The role only works while the player is logged in with Discord and has their Minecraft account linked on their device.'+(lnk(p)?' (Link confirmed.)':'')+'</p>';
-  var cur=eqOf(p),have=COSMETICS.filter(function(c){return owns(p,c.id)}),rest=COSMETICS.filter(function(c){return !owns(p,c.id)});
-  h+='<h4>Admin \u00b7 Cosmetics</h4>'+(have.length?have.map(function(c){return '<div class="dcrow"><span class="cosb">'+c.draw(26)+'</span><b>'+esc(c.name)+'</b><button type="button" data-aeq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button><button type="button" class="danger" data-cdel="'+c.id+'">Remove</button></div>'}).join(''):'<p class="meta">No cosmetics yet.</p>');
-  if(rest.length)h+='<p class="dcrow"><select id="cgs" aria-label="Cosmetic">'+rest.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join('')+'</select><button type="button" id="cgv">Give cosmetic</button></p>';
+  var cur=eqOf(p),gs=[],any=false;
+  COSMETICS.forEach(function(c){if(gs.indexOf(c.g)<0)gs.push(c.g)});
+  h+='<h4>Admin \u00b7 Cosmetics</h4>';
+  gs.forEach(function(g){var t=topLv(p,g);if(!t)return;any=true;var c=COSMETICS.filter(function(x){return x.g===g&&x.lv===t})[0];h+='<div class="dcrow"><span class="cosb">'+c.draw(26)+'</span><b>'+esc(c.name)+'</b><span class="tb">Lv '+c.lv+' \u00b7 '+c.hrs+'+ hours</span><button type="button" data-aeq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button><button type="button" class="danger" data-cdel="'+g+'">Remove</button></div>'});
+  if(!any)h+='<p class="meta">No cosmetics yet.</p>';
+  h+='<p class="dcrow"><select id="cgs" aria-label="Cosmetic level">'+COSMETICS.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+' \u00b7 '+c.hrs+'+ hours (Lv '+c.lv+')</option>'}).join('')+'</select><button type="button" id="cgv">Give / set level</button></p>';
   return h+'</div>';
 }
 var _op=openProfile;
@@ -878,11 +912,14 @@ card.addEventListener('click',function(e){
   }else if(t.dataset.trx){
     p.tr=(p.tr||[]).filter(function(m){return m!==t.dataset.trx});if(!p.tr.length)delete p.tr;redo();
   }else if(t.id==='cgv'){
-    var c=document.getElementById('cgs').value;
-    if(!cosOf(c))return;p.cos=p.cos||[];if(p.cos.indexOf(c)<0)p.cos.push(c);redo();
+    var cc=cosOf(document.getElementById('cgs').value);
+    if(!cc)return;
+    p.cos=(p.cos||[]).filter(function(i){var x=cosOf(i);return !(x&&x.g===cc.g)});p.cos.push(cc.id);
+    var ce=cosOf(p.eq||'');if(ce&&ce.g===cc.g){p.eq=cc.id;p.eqt=Date.now()}
+    redo();
   }else if(t.dataset.cdel){
-    var id=t.dataset.cdel;p.cos=(p.cos||[]).filter(function(x){return x!==id});if(!p.cos.length)delete p.cos;
-    if(p.eq===id){p.eq='';p.eqt=Date.now()}redo();
+    var gg=t.dataset.cdel;p.cos=(p.cos||[]).filter(function(i){var x=cosOf(i);return !(x&&x.g===gg)});if(!p.cos.length)delete p.cos;
+    var ce2=cosOf(p.eq||'');if(ce2&&ce2.g===gg){p.eq='';p.eqt=Date.now()}redo();
   }else if(t.dataset.aeq){
     var id2=t.dataset.aeq,on2=eqOf(p)===id2;setEq(p,on2?'':id2);openProfile(nm);if(!on2)playEq(nm);
   }
@@ -899,12 +936,13 @@ function tsFail(){if(TSP){TSP=false;tsMsg('Applied here, but it couldn\u2019t be
 var REQ=[];try{REQ=JSON.parse(localStorage.getItem('bottiers:req')||'[]')||[]}catch(e){}
 function rqSave(){try{localStorage.setItem('bottiers:req',JSON.stringify(REQ))}catch(e){}}
 function rqEnc(o){return 'BT1.'+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+function scRes(s){var m=/^(\d{1,3})-(\d{1,3})$/.exec(String(s||''));if(!m||+m[1]===+m[2])return null;return +m[1]>+m[2]?'Won':'Lost'}
 function rqDec(s){
   try{
     s=String(s).trim();if(s.indexOf('BT1.')!==0)return null;
     var o=JSON.parse(decodeURIComponent(escape(atob(s.slice(4)))));
     if(!o||(o.type!=='give'&&o.type!=='eval')||!/^\w{3,16}$/.test(String(o.me))||!/^\w{3,16}$/.test(String(o.n))||MODES.indexOf(o.kit)<1)return null;
-    if(o.type==='give'&&TIERS.indexOf(o.tier)<0)return null;
+    if(o.type==='give'&&(TIERS.indexOf(o.tier)<0||!scRes(o.s)))return null;
     return o;
   }catch(e){return null}
 }
@@ -918,7 +956,7 @@ function rqCheck(o){
   if(l&&String(o.d)!==String(l))return {ok:false,msg:'The Discord account on this request isn\u2019t the one linked to '+tp.name+'.'};
   return d;
 }
-function rqDesc(o){return o.type==='give'?'Give <b>'+esc(o.tier)+'</b> to <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>':'Toggle <b>+Eval</b> on <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>'}
+function rqDesc(o){return o.type==='give'?'Give <b>'+esc(o.tier)+'</b> to <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b> \u2013 score <b>'+esc(o.s)+'</b> ('+esc(o.n)+' '+scRes(o.s).toLowerCase()+')':'Toggle <b>+Eval</b> on <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>'}
 function reqModal(msg){
   if(!ADM)return;
   var h='<h3>Tester requests</h3><p class="meta" style="font-size:13px">Testers send you a request code in a private message. Paste it here, check who sent it, then approve or reject.</p><p><textarea id="rqin" rows="3" placeholder="Paste request code(s) here" aria-label="Request codes"></textarea></p><p><button id="rqadd" type="button">Add</button></p><p id="rqm" class="meta" role="status">'+esc(msg||'')+'</p>';
@@ -937,7 +975,7 @@ function testerTools(pref){
   if(!me)return showM('<h3>Tester tools</h3><p class="meta">Log in with Discord and link your Minecraft account first.</p><p>'+CLOSE+'</p>',b);
   var kits=testerKits(me).filter(function(m){return me.t[m]});
   if(!kits.length)return showM('<h3>Tester tools</h3><p class="meta">'+(testerKits(me).length?'You need a tier of your own in the kit you test before you can give tiers.':'You aren\u2019t a tester yet.')+'</p><p>'+CLOSE+'</p>',b);
-  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button> '+CLOSE+'</p>',b);
+  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p><input id="tss" placeholder="Score, e.g. 1-0" maxlength="7" style="width:100%" aria-label="Score"></p><p class="meta" style="font-size:12px">Score is the player first: 1-0 means the player won, 0-1 means the player lost. Needed for a tier request.</p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button> '+CLOSE+'</p>',b);
 }
 function tsCheck(){
   var me=tsMe();if(!me)return null;
@@ -959,10 +997,11 @@ function tsApply(act,S){
     if(TIERS.indexOf(tier)<0)return {ok:false,msg:'Unknown tier.'};
     if(TIERS.indexOf(tier)<mi)return {ok:false,msg:'You can\u2019t give a tier higher than your own ('+meP.t[kit]+').'};
     if(p&&p.t[kit]&&TIERS.indexOf(p.t[kit])<mi)return {ok:false,msg:p.name+' is above your tier in '+kit+'.'};
+    var fi=null;if(act.s){var rs=scRes(act.s);if(!rs)return {ok:false,msg:'The score can\u2019t be a tie.'};fi={r:rs,s:act.s,tt:meP.name,tl:meP.t[kit]}}
     if(!p){var bi=S.BAN.map(function(x){return lc(x.name)}).indexOf(lc(act.n));if(bi>-1){p=S.BAN.splice(bi,1)[0];delete p.ban;p.t={};S.P.push(p)}else{p={name:act.n,region:'\u2013',t:{}};S.P.push(p)}}
-    var old=p.t[kit],hh=hist(p,kit);hh.push({t:tier,ts:Date.now()});p.t[kit]=tier;
+    var old=p.t[kit],hh=hist(p,kit),en={t:tier,ts:Date.now()};if(fi)en.f=[fi];hh.push(en);p.t[kit]=tier;
     if(TIERS.indexOf(tier)<=4){S.LOG.unshift({s:p.name+(old?' moved from '+old+' to ':' set to ')+tier+' in '+kit,n:p.name,m:kit,t:tier,big:true,d:sd()});if(S.LOG.length>6)S.LOG.length=6}
-    return {ok:true,msg:p.name+' is now '+tier+' in '+kit+'.',p:p};
+    return {ok:true,msg:p.name+' is now '+tier+' in '+kit+(fi?' ('+fi.r+' '+fi.s+')':'')+'.',p:p};
   }
   if(!p||!p.t[kit])return {ok:false,msg:'That player has no '+kit+' tier.'};
   if(TIERS.indexOf(p.t[kit])<mi)return {ok:false,msg:p.name+' is above your tier in '+kit+'.'};
@@ -973,7 +1012,7 @@ function tsApply(act,S){
 }
 function tsRequest(type){
   var c=tsCheck();if(!c)return;
-  var act={type:type,me:c.me.name,n:c.n,kit:c.kit};if(type==='give')act.tier=tsEl('tst').value;
+  var act={type:type,me:c.me.name,n:c.n,kit:c.kit};if(type==='give'){act.tier=tsEl('tst').value;var sc=normScore(tsEl('tss').value);if(!sc)return tsMsg('Enter the score like 1-0 (the player first).',true);if(!scRes(sc))return tsMsg('The score can\u2019t be a tie.',true);act.s=sc}
   if(ADM){var r0=tsApply(act,{P:P,BAN:BAN,LOG:LOG});if(!r0.ok)return tsMsg(r0.msg,true);if(type==='give'){mode=c.kit;flash=r0.p.name;drawTicker()}render();touch();return tsMsg(r0.msg)}
   var r=tsDry(act);if(!r.ok)return tsMsg(r.msg,true);
   act.d=ME.id;act.dn=String(ME.n);act.ts=Date.now();
