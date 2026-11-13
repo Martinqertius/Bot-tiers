@@ -125,6 +125,22 @@ textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var
 #dcbtn{background:#5865f2;border-color:#5865f2;color:#fff;font-weight:700}#dcbtn img{margin-right:6px;vertical-align:-5px}
 body:not(.admin) #lkbtn{display:none!important}
 .cosg{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}.cos{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.row{grid-template-columns:36px 44px 1fr auto auto}.row .pts{grid-column:5}.cx{grid-column:4;display:flex;align-items:center;justify-content:center}.cx:empty{display:none}
+.cosb{display:inline-flex;vertical-align:middle;align-items:center}
+.tmc{overflow:visible;display:block;flex:none}.tmc .tmr{transform-origin:16px 16px;opacity:0}.tmc .hh,.tmc .mm{transform-origin:16px 16px}
+.tmc.spin{animation:tmpop 1.5s ease-in-out}.tmc.spin .tmr{animation:tmring 1.5s ease-out}.tmc.spin .mm{animation:tmmin 1.5s cubic-bezier(.5,0,.2,1)}.tmc.spin .hh{animation:tmhr 1.5s cubic-bezier(.5,0,.2,1)}
+@keyframes tmpop{0%{transform:scale(1)}25%{transform:scale(1.3) rotate(-8deg)}60%{transform:scale(1.15) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes tmring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+@keyframes tmmin{to{transform:rotate(1080deg)}}@keyframes tmhr{to{transform:rotate(360deg)}}
+.cosg{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}.cos.lock{opacity:.6}.cosp{display:flex;justify-content:center;padding:8px 0}
+.tb{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:middle;background:#8b5cf6;color:#fff;white-space:nowrap}
+.dcrow .tb,.admx .tb{margin-left:0;font-size:12px;padding:3px 10px}
+.tbx{border:0!important;background:none!important;color:#fff!important;padding:0 0 0 4px!important;cursor:pointer;font-size:14px;line-height:1}
+.tstrip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.tstrip .tp{display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg);padding:3px 10px 3px 4px;border-radius:999px;font-weight:700;font-size:13px}
+.admx{margin-top:14px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px}.admx h4{margin:10px 0 6px}.admx h4:first-child{margin-top:0}.admx p{margin:6px 0 0}
+.admx .dcrow{margin-top:6px}
+body:not(.admin) .admx{display:none!important}
 </style>
 </head>
 <body>
@@ -198,10 +214,10 @@ function render(){
     var all=P.slice().sort(function(a,b){return pts(b)-pts(a)});
     L.forEach(function(p){
       var chips=Object.keys(p.t).map(function(m){return '<span class="chip '+cls(p.t[m])+'" title="'+m+'">'+icon(m,14)+p.t[m]+"</span>"}).join("");
-      h+='<div class="row'+(flash===p.name?' flash':'')+'" tabindex="0" role="button" data-n="'+esc(p.name)+'"><div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+'</div><div class="chips">'+chips+'</div></div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
+      h+='<div class="row'+(flash===p.name?' flash':'')+'" tabindex="0" role="button" data-n="'+esc(p.name)+'"><div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+tbg(p)+'</div><div class="chips">'+chips+'</div></div><div class="cx">'+cxHtml(p,32)+'</div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
     });
   }else{
-    h='<div class="cols">';
+    h=tstrip(mode)+'<div class="cols">';
     for(var n=1;n<=5;n++){
       h+='<section class="col"><h2 class="t'+n+'">Tier '+n+'</h2>';
       ["HT","LT"].forEach(function(k){
@@ -728,7 +744,7 @@ function linkVerify(){
   var p=P.filter(function(x){return x.name===inp.getAttribute('data-lm')})[0];
   if(!p)return;
   if(inp.value.trim().toUpperCase()!==vcode('',p.name)){er.textContent='That code isn\u2019t right. Check the private message from the admin and try again.';return}
-  LOC={i:ME.id,m:p.name.toLowerCase()};try{localStorage.setItem('bottiers:mylink',JSON.stringify(LOC))}catch(e){}
+  LOC={i:ME.id,m:p.name.toLowerCase()};try{localStorage.setItem('bottiers:mylink',JSON.stringify(LOC))}catch(e){}if(ADM){p.dc={id:ME.id};touch()}
   linkDone(p,false);
 }
 function linkDone(p,shared){
@@ -745,11 +761,58 @@ function lkCheck(){
   if(lnk(p)){r.textContent=p.name+' is already linked. Unlink it first from their profile.';return}
   r.innerHTML='Code for <b>'+esc(p.name)+'</b>: <b style="font-size:22px;letter-spacing:2px">'+vcode('',p.name)+'</b><br>Send it to them in a private message in Minecraft (<b>/msg '+esc(p.name)+' '+vcode('',p.name)+'</b>).';
 }
+/* ---- cosmetics + tester roles ---- */
+function clockSvg(s){return '<svg class="tmc" width="'+s+'" height="'+s+'" viewBox="0 0 32 32" aria-hidden="true"><circle class="tmr" cx="16" cy="16" r="14" fill="none" stroke="#f7cf4f" stroke-width="2"/><circle cx="16" cy="16" r="14" fill="#fff6cf" stroke="#d4a017" stroke-width="2.5"/><path d="M16 4.8v2M27.2 16h-2M16 27.2v-2M4.8 16h2" stroke="#7a5a00" stroke-width="1.6" stroke-linecap="round"/><g transform="rotate(-60 16 16)"><g class="hh"><path d="M16 16V10" stroke="#3a2a00" stroke-width="2.4" stroke-linecap="round"/></g></g><g transform="rotate(60 16 16)"><g class="mm"><path d="M16 16V7" stroke="#3a2a00" stroke-width="1.8" stroke-linecap="round"/></g></g><circle cx="16" cy="16" r="1.7" fill="#3a2a00"/></svg>'}
+COSMETICS=[{id:'time',name:'Time',desc:'Have 50+ hours on bot fight official server',draw:clockSvg}];
+var LOCEQ={};try{LOCEQ=JSON.parse(localStorage.getItem('bottiers:eq')||'{}')||{}}catch(e){}
+function cosOf(id){var L=COSMETICS||[],i;for(i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
+function owns(p,id){return !!(p.cos&&p.cos.indexOf(id)>-1)}
+function eqOf(p){var id=p.eq||'',l=LOCEQ&&LOCEQ[p.name.toLowerCase()];if(l&&typeof l==='object'&&l.t>(p.eqt||0)&&ME&&dcFind()===p)id=l.e||'';return owns(p,id)&&cosOf(id)?id:''}
+function cxHtml(p,s){var c=cosOf(eqOf(p));return c?'<span class="cosb" data-cn="'+esc(p.name)+'" title="'+esc(c.name+' \u2013 '+c.desc)+'">'+c.draw(s)+'</span>':''}
+function setEq(p,id){
+  var t=Date.now();
+  if(ADM){p.eq=id;p.eqt=t;touch()}
+  else if(dcFind()===p){LOCEQ[p.name.toLowerCase()]={e:id,t:t};try{localStorage.setItem('bottiers:eq',JSON.stringify(LOCEQ))}catch(e){}}
+  render();
+}
+function playEq(name){
+  setTimeout(function(){
+    [].forEach.call(document.querySelectorAll('.cosb,.cosp'),function(w){
+      if(w.classList.contains('cosb')&&w.dataset.cn!==name)return;
+      var el=w.querySelector('.tmc');if(!el)return;
+      el.classList.remove('spin');void el.getBoundingClientRect();el.classList.add('spin');
+      setTimeout(function(){el.classList.remove('spin')},1700);
+    });
+  },40);
+}
+function testerKits(p){return (p.tr||[]).filter(function(m){return MODES.indexOf(m)>0})}
+function tbg(p){var k=testerKits(p);return k.length?'<span class="tb" title="Tester: '+esc(k.join(', '))+'">'+k.map(function(m){return icon(m,12)}).join('')+'Tester</span>':''}
+function tstrip(m){
+  var L=P.filter(function(p){return testerKits(p).indexOf(m)>-1});
+  if(!L.length)return '';
+  return '<div class="tstrip"><span class="tb" style="margin:0">'+icon(m,12)+m+' testers</span>'+L.map(function(p){return '<span class="tp" tabindex="0" data-n="'+esc(p.name)+'">'+av(p.name,22)+esc(p.name)+'</span>'}).join('')+'</div>';
+}
 function cosmetics(){
   var b=document.getElementById('cosbtn');
   if(!ME)return showM('<h3>Cosmetics</h3><p class="meta">Log in with Discord and link your Minecraft account to use cosmetics.</p><p><button id="dcgo" type="button">Log in with Discord</button> '+CLOSE+'</p>',b);
-  if(!dcFind())return showM('<h3>Cosmetics</h3><p class="meta">Link your Minecraft account first. Then your cosmetics show up here.</p><p><button id="dlk" type="button">Link Minecraft account</button> '+CLOSE+'</p>',b);
-  showM('<h3>Cosmetics</h3>'+(COSMETICS.length?'<div class="cosg">'+COSMETICS.map(function(c){return '<div class="cos"><b>'+esc(c.name)+'</b><span class="meta">'+esc(c.desc||'')+'</span></div>'}).join('')+'</div>':'<p class="meta">Nothing here yet \u2013 cosmetics are coming soon.</p>')+'<p>'+CLOSE+'</p>',b);
+  var p=dcFind();
+  if(!p)return showM('<h3>Cosmetics</h3><p class="meta">Link your Minecraft account first. Then your cosmetics show up here.</p><p><button id="dlk" type="button">Link Minecraft account</button> '+CLOSE+'</p>',b);
+  var cur=eqOf(p);
+  showM('<h3>Cosmetics</h3><p class="meta" style="font-size:13px">An equipped cosmetic shows next to your name on the leaderboard. Cosmetics are given to you by an admin.</p><div class="cosg">'+COSMETICS.map(function(c){
+    var o=owns(p,c.id);
+    return '<div class="cos'+(o?'':' lock')+'"><div class="cosp">'+c.draw(44)+'</div><b>'+esc(c.name)+'</b><span class="meta">'+esc(c.desc)+'</span>'+(o?'<button type="button" data-eq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button>':'<span class="meta">\ud83d\udd12 Locked</span>')+'</div>';
+  }).join('')+'</div><p>'+CLOSE+'</p>',b);
+}
+function admBlock(p){
+  var tk=testerKits(p),free=MODES.slice(1).filter(function(m){return tk.indexOf(m)<0}),h='<div class="admx"><h4>Admin \u00b7 Tester role</h4>';
+  h+='<div class="dcrow">'+(tk.length?tk.map(function(m){return '<span class="tb">'+icon(m,14)+esc(m)+' tester<button type="button" class="tbx" data-trx="'+m+'" aria-label="Remove '+m+' tester role" title="Remove">\u00d7</button></span>'}).join(''):'<span class="meta">No tester roles yet.</span>')+'</div>';
+  if(!lnk(p))h+='<p class="meta">Can\u2019t give a tester role yet: '+esc(p.name)+' hasn\u2019t logged in with Discord and linked their Minecraft account.</p>';
+  else if(!free.length)h+='<p class="meta">Tester in every kit.</p>';
+  else h+='<p class="dcrow"><select id="trk" aria-label="Kit">'+free.map(function(m){return '<option>'+m+'</option>'}).join('')+'</select><button type="button" id="trg">Give tester role</button></p>';
+  var cur=eqOf(p),have=COSMETICS.filter(function(c){return owns(p,c.id)}),rest=COSMETICS.filter(function(c){return !owns(p,c.id)});
+  h+='<h4>Admin \u00b7 Cosmetics</h4>'+(have.length?have.map(function(c){return '<div class="dcrow"><span class="cosb">'+c.draw(26)+'</span><b>'+esc(c.name)+'</b><button type="button" data-aeq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button><button type="button" class="danger" data-cdel="'+c.id+'">Remove</button></div>'}).join(''):'<p class="meta">No cosmetics yet.</p>');
+  if(rest.length)h+='<p class="dcrow"><select id="cgs" aria-label="Cosmetic">'+rest.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join('')+'</select><button type="button" id="cgv">Give cosmetic</button></p>';
+  return h+'</div>';
 }
 var _op=openProfile;
 openProfile=function(n){
@@ -775,7 +838,7 @@ card.addEventListener('click',function(e){
     var q=P.filter(function(x){return x.name===nm})[0];if(!q)return;
     if(!t.dataset.c){t.dataset.c='1';t.textContent='Click again to unlink';t.className='danger';return}
     var key=q.name.toLowerCase();
-    if(q.dc){delete q.dc;touch()}
+    if(q.dc){delete q.dc;touch()}if(q.tr){delete q.tr;touch()}
     if(LINKS[key]&&LINK_API){var ak=prompt('Link server admin key');if(!ak)return;fetch(LINK_API+'/link?mc='+encodeURIComponent(q.name),{method:'DELETE',headers:{Authorization:'Bearer '+ak}}).then(function(r){if(r.ok){delete LINKS[key];render();openProfile(nm)}else alert('The link server refused (wrong admin key?).')}).catch(function(){alert('Couldn\u2019t reach the link server.')});return}
     render();openProfile(nm);
   }
@@ -784,6 +847,44 @@ document.getElementById('dcbtn').onclick=function(){ME?acct():dcLogin()};
 document.getElementById('cosbtn').onclick=cosmetics;
 document.getElementById('lkbtn').onclick=adminLink;
 drawDc();dcCallback();loadLinks();setInterval(function(){if(!document.hidden)loadLinks()},60000);
+
+
+/* ---- profile: tester badges, equipped cosmetic, admin tools ---- */
+var _op2=openProfile;
+openProfile=function(n){
+  _op2(n);
+  var p=P.filter(function(x){return x.name===n})[0],hs2=document.getElementById('hist');if(!p||!hs2)return;
+  var pb=card.querySelector('.pbadge'),cx=cxHtml(p,26);if(pb&&cx)pb.insertAdjacentHTML('beforeend',' '+cx);
+  var tk=testerKits(p),h='';
+  if(tk.length)h+='<div class="dcrow">'+tk.map(function(m){return '<span class="tb">'+icon(m,14)+esc(m)+' tester</span>'}).join('')+'</div>';
+  if(ADM)h+=admBlock(p);
+  if(h)hs2.insertAdjacentHTML('beforebegin',h);
+};
+card.addEventListener('click',function(e){
+  var t=e.target.closest?e.target.closest('button'):null;if(!t)return;
+  if(t.dataset.eq!==undefined){
+    var me=dcFind();if(!me||!owns(me,t.dataset.eq))return;
+    var on=eqOf(me)===t.dataset.eq;setEq(me,on?'':t.dataset.eq);cosmetics();if(!on)playEq(me.name);return;
+  }
+  if(!ADM)return;
+  var hd=document.getElementById('hist'),nm=hd?hd.dataset.p:'',p=P.filter(function(x){return x.name===nm})[0];if(!p)return;
+  var redo=function(){touch();render();openProfile(nm)};
+  if(t.id==='trg'){
+    var k=document.getElementById('trk').value;
+    if(!lnk(p)||MODES.indexOf(k)<1)return;
+    p.tr=p.tr||[];if(p.tr.indexOf(k)<0)p.tr.push(k);redo();
+  }else if(t.dataset.trx){
+    p.tr=(p.tr||[]).filter(function(m){return m!==t.dataset.trx});if(!p.tr.length)delete p.tr;redo();
+  }else if(t.id==='cgv'){
+    var c=document.getElementById('cgs').value;
+    if(!cosOf(c))return;p.cos=p.cos||[];if(p.cos.indexOf(c)<0)p.cos.push(c);redo();
+  }else if(t.dataset.cdel){
+    var id=t.dataset.cdel;p.cos=(p.cos||[]).filter(function(x){return x!==id});if(!p.cos.length)delete p.cos;
+    if(p.eq===id){p.eq='';p.eqt=Date.now()}redo();
+  }else if(t.dataset.aeq){
+    var id2=t.dataset.aeq,on2=eqOf(p)===id2;setEq(p,on2?'':id2);openProfile(nm);if(!on2)playEq(nm);
+  }
+});
 
 render();
 </script>
