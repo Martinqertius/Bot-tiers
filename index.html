@@ -183,6 +183,11 @@ body:not(.admin) .admx{display:none!important}
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg)}
 .row[data-n],.col li[data-n]{cursor:pointer}.row[data-n]:hover{border-color:var(--acc)}
 @media (pointer:coarse){button,select,input{min-height:40px}nav button{padding:8px 14px}}
+.chip.t1{background:#e7a904}.chip.t1.lt{background:#bf972c}
+.chip.t2{background:#8b96ab}.chip.t2.lt{background:#9198a5}
+.chip.t3{background:#c67421}.chip.t3.lt{background:#a9743e}
+.chip.t4{background:#37976b}.chip.t4.lt{background:#488669}
+.chip.t5{background:#5178c1}.chip.t5.lt{background:#647eae}
 </style>
 </head>
 <body>
@@ -235,7 +240,7 @@ var PTS={HT1:60,LT1:45,HT2:30,LT2:20,HT3:14,LT3:10,HT4:5,LT4:3,HT5:2,LT5:1};
 var P=[];
 var mode="Overall",nav=document.getElementById("nav"),view=document.getElementById("view"),q=document.getElementById("q");
 function rnk(p,all){var s=pts(p),i=0;while(i<all.length&&pts(all[i])>s)i++;return i+1}
-function cls(t){return "t"+t.slice(2)}
+function cls(t){return "t"+t.slice(2)+(t[0]==="L"?" lt":"")}
 function pts(p){return Object.keys(p.t).reduce(function(s,m){return s+PTS[p.t[m]]},0)}
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function drawNav(){
@@ -255,7 +260,7 @@ function render(){
     if(!L.length)h='<p class="empty">'+(P.length?'No players match that search.':'No players yet. Log in as admin to add the first one.')+'</p>';
     var all=P.slice().sort(function(a,b){return pts(b)-pts(a)});
     L.forEach(function(p){
-      var chips=Object.keys(p.t).map(function(m){return '<span class="chip '+cls(p.t[m])+'" title="'+m+'">'+icon(m,14)+p.t[m]+"</span>"}).join("");
+      var chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<span class="chip '+cls(p.t[m])+'" title="'+m+'">'+icon(m,14)+p.t[m]+"</span>"}).join("");
       h+='<div class="row'+(flash===p.name?' flash':'')+rowCls(p)+'" tabindex="0" role="button" data-n="'+esc(p.name)+'">'+rowBg(p)+'<div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+tbg(p)+'</div><div class="chips">'+chips+'</div></div><div class="cx">'+cxHtml(p,32)+'</div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
     });
   }else{
@@ -263,7 +268,7 @@ function render(){
     for(var n=1;n<=5;n++){
       h+='<section class="col"><h2 class="t'+n+'">Tier '+n+'</h2>';
       ["HT","LT"].forEach(function(k){
-        var code=k+n,L=P.filter(function(p){return p.t[mode]===code&&(!f||p.name.toLowerCase().indexOf(f)>-1)});
+        var code=k+n,L=P.filter(function(p){return p.t[mode]===code&&(!f||p.name.toLowerCase().indexOf(f)>-1)}).sort(function(a,b){return pts(b)-pts(a)});
         h+='<div class="lbl">'+(k==="HT"?"High":"Low")+' tier '+n+'</div><ul>';
         h+=L.length?L.map(function(p){return '<li class="'+(flash===p.name?'flash':'')+'" tabindex="0" data-n="'+esc(p.name)+'"><span>'+av(p.name,24)+esc(p.name)+'</span>'+rkb(p)+'</li>'}).join(""):'<li class="empty">No players</li>';
         h+='</ul>';
@@ -297,7 +302,7 @@ function av(name,sz){var sk=skinOf(name);if(sk)return '<img class="av" alt="" wi
 }
 function openProfile(n){
   var p=P.filter(function(x){return x.name===n})[0];if(!p){var bp=BAN.filter(function(x){return x.name===n})[0];if(bp)return openBanned(bp);closeP();return}
-  var all=P.slice().sort(function(a,b){return pts(b)-pts(a)}),chips=Object.keys(p.t).map(function(m){return '<button class="chip '+cls(p.t[m])+'" data-m="'+m+'" title="'+m+' history">'+icon(m,24)+p.t[m]+evTag(p,m)+'</button>'}).join(' ');
+  var all=P.slice().sort(function(a,b){return pts(b)-pts(a)}),chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<button class="chip '+cls(p.t[m])+'" data-m="'+m+'" title="'+m+' history">'+icon(m,24)+p.t[m]+evTag(p,m)+'</button>'}).join(' ');
   card.innerHTML='<div class="top">'+av(p.name,96)+'<div><h3>'+esc(p.name)+'</h3><div class="pbadge">'+rkb(p)+'</div><div class="pst"><div class="r'+Math.min(+rnk(p,all)||4,4)+'"><span>Rank</span><b>#'+(rnk(p,all))+'</b></div><div><span>Points</span><b>'+pts(p)+'</b></div></div></div></div><div class="chips">'+chips+'</div><div id="hist" data-p="'+esc(p.name)+'"><p class="meta">Select a tier to see its history.</p></div><div id="warn"></div><p><button id="x">Close</button> <button class="danger" id="delp">Delete player</button></p>';
   openM();
 }
