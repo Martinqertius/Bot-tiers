@@ -881,7 +881,7 @@ function eqOf(p){
   if(!LINK_API&&l&&typeof l==='object'&&l.t>best&&ME&&dcFind()===p)id=cnorm(l.e||'');
   return owns(p,id)&&cosOf(id)?id:'';
 }
-function rowCls(p){var c=cosOf(eqOf(p));return c?' cs cs'+c.lv:''}
+function rowCls(p){var c=cosOf(eqOf(p));return c&&c.lv>=4?' cs cs'+c.lv:''}
 function rowBg(p){var c=cosOf(eqOf(p));return c&&c.lv>=4?'<div class="cbg" aria-hidden="true"></div>':''}
 function cxHtml(p,s){var c=cosOf(eqOf(p));return c?'<span class="cosb" data-cn="'+esc(p.name)+'" title="'+esc(c.name+' (Lv '+c.lv+') \u2013 '+c.desc)+'">'+c.draw(s)+'</span>':''}
 function setEq(p,id,done){
@@ -1072,17 +1072,17 @@ function reqModal(msg){
   SRQ.forEach(function(r){var o=rqVal(r);if(o)items.push({o:o,k:'s:'+r.id})});
   GRQ.forEach(function(r){if(r.o.type!=='equip')items.push({o:r.o,k:'g:'+r.n,gh:r.u})});
   REQ.forEach(function(raw,i){var o=rqDec(raw);if(o)items.push({o:o,k:'c:'+i})});
-  var h='<h3>Tester requests</h3><p class="meta" style="font-size:13px">'+(LINK_API?'Requests from testers arrive here by themselves. You can also paste a request code below.':'Requests sent through GitHub show up here by themselves (they are GitHub “issues” in your repo). You can also paste a request code below.')+'</p><p><textarea id="rqin" rows="3" placeholder="Paste request code(s) here" aria-label="Request codes"></textarea></p><p><button id="rqadd" type="button">Add</button></p><p id="rqm" class="meta" role="status">'+esc(msg||'')+'</p>';
+  var h='<h3>Inbox</h3><p class="meta" style="font-size:13px">'+(LINK_API?'Tier requests from testers arrive here by themselves. You can also paste a request code below.':'Tier requests from testers show up here by themselves (they come through GitHub). Accept or reject each one. You can also paste a request code below.')+'</p><p><textarea id="rqin" rows="3" placeholder="Paste request code(s) here" aria-label="Request codes"></textarea></p><p><button id="rqadd" type="button">Add</button></p><p id="rqm" class="meta" role="status">'+esc(msg||'')+'</p>';
   h+=items.length?items.map(function(it){
     var o=it.o,d=rqCheck(o),gm='',trust=false;
     if(it.gh){var kn=GHMAP[o.me.toLowerCase()];
       if(!kn)gm='<div class="meta" style="color:#b7791f">First request from this tester. Make sure GitHub user <b>@'+esc(it.gh)+'</b> is really them.</div>';
       else if(kn.toLowerCase()!==it.gh.toLowerCase()){trust=true;d={ok:false,msg:'This GitHub account (@'+it.gh+') is different from the one used before (@'+kn+').'}}}
-    return '<div class="cos" style="margin-top:8px"><div><b>'+esc(pn(o.me))+'</b> <span class="meta">('+(it.gh?'GitHub: @'+esc(it.gh)+' \u00b7 ':'')+'Discord: '+esc(String(o.dn||'?'))+')</span></div><div>'+rqDesc(o)+'</div>'+gm+'<div class="meta" style="color:'+(d.ok?'#1f9d55':'#c0392b')+'">'+(d.ok?'Allowed \u2713':'Not allowed: '+esc(d.msg))+'</div><div class="dcrow"><button type="button" data-rqa="'+esc(it.k)+'"'+(d.ok?'':' disabled')+'>Approve</button><button type="button" class="danger" data-rqr="'+esc(it.k)+'">Reject</button>'+(trust?'<button type="button" data-rqt="'+esc(it.k)+'">Trust @'+esc(it.gh)+'</button>':'')+'</div></div>';
-  }).join(''):'<p class="empty">No requests waiting.</p>';
+    return '<div class="cos" style="margin-top:8px"><div><b>'+esc(pn(o.me))+'</b> <span class="meta">('+(it.gh?'GitHub: @'+esc(it.gh)+' \u00b7 ':'')+'Discord: '+esc(String(o.dn||'?'))+')</span></div><div>'+rqDesc(o)+'</div>'+gm+'<div class="meta" style="color:'+(d.ok?'#1f9d55':'#c0392b')+'">'+(d.ok?'Allowed \u2713':'Not allowed: '+esc(d.msg))+'</div><div class="dcrow"><button type="button" data-rqa="'+esc(it.k)+'"'+(d.ok?'':' disabled')+'>Accept</button><button type="button" class="danger" data-rqr="'+esc(it.k)+'">Reject</button>'+(trust?'<button type="button" data-rqt="'+esc(it.k)+'">Trust @'+esc(it.gh)+'</button>':'')+'</div></div>';
+  }).join(''):'<p class="empty">Your inbox is empty.</p>';
   showM(h+'<p>'+CLOSE+'</p>',tsEl('rqbtn'));
 }
-function drawRq(){var b=tsEl('rqbtn'),n=REQ.length+SRQ.length+GRQ.filter(function(x){return x.o.type!=='equip'}).length;if(b){b.textContent='Requests'+(n?' ('+n+')':'');b.classList.toggle('rqnew',n>0)}}
+function drawRq(){var b=tsEl('rqbtn'),n=REQ.length+SRQ.length+GRQ.filter(function(x){return x.o.type!=='equip'}).length;if(b){b.textContent='Inbox'+(n?' ('+n+')':'');b.classList.toggle('rqnew',n>0)}}
 function tsOpts(me,kit){var i=TIERS.indexOf(me.t[kit]);return TIERS.filter(function(t,k){return k>=i}).map(function(t){return '<option>'+t+'</option>'}).join('')}
 function tsMe(){return ME?dcFind():null}
 function tsFindP(n){return P.filter(function(x){return x.name.toLowerCase()===n.toLowerCase()})[0]}
@@ -1134,7 +1134,7 @@ function tsRequest(type){
   if(LINK_API){
     var tk=dcTok();if(!tk)return tsMsg('Your Discord login expired. Log in again, then retry.',true);
     tsMsg('Sending\u2026');
-    api('/request',{method:'POST',tok:tk,body:act}).then(function(){tsMsg('Sent to the owner \u2713 They approve it in their Requests window.')}).catch(function(e){tsMsg(e.message,true)});
+    api('/request',{method:'POST',tok:tk,body:act}).then(function(){tsMsg('Sent to the owner \u2713 They accept it in their Inbox.')}).catch(function(e){tsMsg(e.message,true)});
     return;
   }
   act.d=ME.id;act.dn=String(ME.n);act.ts=Date.now();
@@ -1146,7 +1146,7 @@ function tsRequest(type){
   var b=document.createElement('button');b.id='tsbtn';b.type='button';b.textContent='Tester tools';b.hidden=true;
   var cb=document.getElementById('cosbtn');cb.parentNode.insertBefore(b,cb);
   b.onclick=function(){testerTools('')};
-  var q=document.createElement('button');q.id='rqbtn';q.type='button';q.textContent='Requests';cb.parentNode.insertBefore(q,cb);q.onclick=function(){reqOpen('')};
+  var q=document.createElement('button');q.id='rqbtn';q.type='button';q.textContent='Inbox';cb.parentNode.insertBefore(q,cb);q.onclick=function(){reqOpen('')};
   var st=document.createElement('style');st.textContent='body:not(.admin) #rqbtn{display:none!important}#rqbtn{background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:700}';document.head.appendChild(st);
   drawRq();
 })();
@@ -1184,9 +1184,9 @@ card.addEventListener('click',function(e){
     var ap=tsApply(o,{P:P,BAN:BAN,LOG:LOG});if(!ap.ok)return reqModal(ap.msg);
     if(o.type==='give'){mode=o.kit;flash=ap.p.name;drawTicker()}
     render();touch();
-    if(ka[0]==='s')rqServerDone(kid,'Approved: '+ap.msg);
-    else if(git){GHMAP[o.me.toLowerCase()]=git.u;try{localStorage.setItem('bt:ghmap',JSON.stringify(GHMAP))}catch(x){}doneMark(git.n);closeIssue(git.n,'completed');GRQ=GRQ.filter(function(x){return x.n!==git.n});drawRq();reqModal('Approved: '+ap.msg)}
-    else{REQ.splice(+kid,1);rqSave();drawRq();reqModal('Approved: '+ap.msg)}
+    if(ka[0]==='s')rqServerDone(kid,'Accepted: '+ap.msg);
+    else if(git){GHMAP[o.me.toLowerCase()]=git.u;try{localStorage.setItem('bt:ghmap',JSON.stringify(GHMAP))}catch(x){}doneMark(git.n);closeIssue(git.n,'completed');GRQ=GRQ.filter(function(x){return x.n!==git.n});drawRq();reqModal('Accepted: '+ap.msg)}
+    else{REQ.splice(+kid,1);rqSave();drawRq();reqModal('Accepted: '+ap.msg)}
   }
 });
 card.addEventListener('change',function(e){
