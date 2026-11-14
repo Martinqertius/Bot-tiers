@@ -1,0 +1,55 @@
+name: Equip cosmetic
+
+# Runs by itself when a player submits the "[Equip]" issue from the website.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: equip-cosmetic
+  cancel-in-progress: false
+
+jobs:
+  equip:
+    if: startsWith(github.event.issue.title, '[Equip]') && github.event.issue.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check and apply the request
+        env:
+          BODY: ${{ github.event.issue.body }}
+          LOGIN: ${{ github.event.issue.user.login }}
+        run: node .github/scripts/equip.js
+
+      - name: Save equips.json
+        run: |
+          if [ -n "$(git status --porcelain equips.json)" ]; then
+            git config user.name "bot-tiers"
+            git config user.email "bot-tiers@users.noreply.github.com"
+            git add equips.json
+            git commit -m "Equip update"
+            for i in 1 2 3; do
+              git pull --rebase && git push && break
+              sleep 3
+            done
+          fi
+
+      - name: Answer and close the issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUM: ${{ github.event.issue.number }}
+        run: |
+          MSG=/tmp/result.txt
+          [ -f "$MSG" ] || echo "Something went wrong. Ask the owner to look at the Actions tab." > "$MSG"
+          gh issue comment "$NUM" --body-file "$MSG"
+          if [ -f /tmp/fail ]; then
+            gh issue close "$NUM" --reason "not planned"
+          else
+            gh issue close "$NUM" --reason completed
+          fi
