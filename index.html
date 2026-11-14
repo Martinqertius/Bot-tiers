@@ -814,20 +814,11 @@ function ghReqs(cb){
   }).catch(function(){cb()});
 }
 // Equip requests from players are applied by themselves when the owner's page checks the inbox.
-function rqAuto(){
-  var ch=false;
-  GRQ=GRQ.filter(function(it){
-    if(it.o.type!=='equip')return true;
-    var p=P.filter(function(x){return x.name.toLowerCase()===it.o.me.toLowerCase()})[0];
-    if(p&&(it.o.cos===''||owns(p,it.o.cos))){p.eq=it.o.cos?cnorm(it.o.cos):'';p.eqt=Date.now();ch=true}
-    doneMark(it.n);closeIssue(it.n,'completed');return false;
-  });
-  if(ch){touch();render()}
-}
+function rqAuto(){GRQ=GRQ.filter(function(it){return it.o.type!=='equip'})}
 function cosShare(p,id){
   var e=document.getElementById('cosm');if(!e)return;
   var act={type:'equip',me:p.name,cos:id,d:ME.id,dn:String(ME.n),ts:Date.now()},u=issueUrl('[Equip] '+p.name+' '+(id?'equips '+id:'unequips'),'Equip request from '+ME.n+': '+rqPlain(act),rqEnc(act));
-  e.style.color='';e.innerHTML='Saved on this device.'+(u?' To show it to everyone: <a class="gbtn" target="_blank" rel="noopener" href="'+esc(u)+'">Send to owner on GitHub</a> <span class="meta">(press \u201cSubmit new issue\u201d there)</span>':'');
+  e.style.color='';e.innerHTML='Saved on this device.'+(u?' To show it to everyone: <a class="gbtn" target="_blank" rel="noopener" href="'+esc(u)+'">Save for everyone on GitHub</a> <span class="meta">Press \u201cSubmit new issue\u201d there. It updates by itself, usually within a few minutes.</span>':'');
 }
 function dcTok(){try{var o=JSON.parse(localStorage.getItem('bottiers:dct')||'null');if(o&&o.x>Date.now())return o.t}catch(e){}try{return sessionStorage.getItem('bt:dct')}catch(e){}return null}
 function api(path,o){
@@ -837,6 +828,22 @@ function api(path,o){
   });
 }
 function akey(force){var k=null;try{k=localStorage.getItem('bt:ak')}catch(e){}if(!k||force){k=prompt('Server admin key');if(k)try{localStorage.setItem('bt:ak',k)}catch(e){}}return k}
+function loadEq(){
+  if(LINK_API)return;
+  fetch('equips.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(o){
+    if(o&&typeof o==='object'&&JSON.stringify(o)!==JSON.stringify(SEQ)){SEQ=o;render()}
+  }).catch(function(){});
+}
+function eqReset(name,cb){
+  if(typeof GH==='undefined'||!GH||!GH.token)return cb('Set up GitHub sync first.');
+  var url='https://api.github.com/repos/'+GH.repo+'/contents/equips.json';
+  fetch(url+'?ref='+encodeURIComponent(GH.branch)+'&t='+Date.now(),{headers:ghHdr(),cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){
+    if(!j)return cb('equips.json isn\u2019t in your repo yet.');
+    var o={};try{o=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))))||{}}catch(e){}
+    delete o[name.toLowerCase()];
+    return fetch(url,{method:'PUT',headers:ghHdr(),body:JSON.stringify({message:'Reset equip',content:btoa(unescape(encodeURIComponent(JSON.stringify(o)))),sha:j.sha,branch:GH.branch})}).then(function(r2){cb(r2.ok?'':'GitHub refused ('+r2.status+').')});
+  }).catch(function(){cb('Couldn\u2019t reach GitHub.')});
+}
 function loadEquips(){if(!LINK_API)return;api('/equips').then(function(o){if(o&&typeof o==='object'&&JSON.stringify(o)!==JSON.stringify(SEQ)){SEQ=o;render()}}).catch(function(){})}
 function loadReqs(){if(!ADM)return;if(!LINK_API){if(typeof GH!=='undefined'&&GH&&GH.token)ghReqs(function(){rqAuto();drawRq()});return}var k=null;try{k=localStorage.getItem('bt:ak')}catch(e){}if(!k)return;api('/requests',{tok:k}).then(function(a){SRQ=Array.isArray(a)?a:[];drawRq()}).catch(function(){})}
 function loadLinks(){if(!LINK_API)return;loadEquips();loadReqs();fetch(LINK_API+'/links',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(o){if(o&&typeof o==='object'&&JSON.stringify(o)!==JSON.stringify(LINKS)){LINKS=o;render()}}).catch(function(){})}
@@ -917,7 +924,7 @@ function cosmetics(){
   showM('<h3>Cosmetics</h3><p class="meta" style="font-size:13px">An equipped cosmetic shows next to your name and colors your bar on the leaderboard. Cosmetics are given to you by an admin.</p><div class="cosg">'+COSMETICS.map(function(c){
     var o=owns(p,c.id);
     return '<div class="cos'+(o?'':' lock')+'"><div class="cosp">'+c.draw(44)+'</div><div><b>'+esc(c.name)+'</b> <span class="tb" style="margin:0">Lv '+c.lv+'</span></div><span class="meta">'+esc(c.desc)+'</span>'+(o?'<button type="button" data-eq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button>':'<span class="meta">\ud83d\udd12 Locked</span>')+'</div>';
-  }).join('')+'</div><p id="cosm" class="meta" role="status"></p>'+(LINK_API||ADM?'':'<p class="meta" style="font-size:12px">Your choice is saved on this device. After you equip, a button lets you send it to the owner so everyone sees it.</p>')+'<p>'+CLOSE+'</p>',b);
+  }).join('')+'</div><p id="cosm" class="meta" role="status"></p>'+(LINK_API||ADM?'':'<p class="meta" style="font-size:12px">Your choice is saved on this device. After you equip, a button lets you save it on GitHub so everyone sees it (you need a free GitHub account).</p>')+'<p>'+CLOSE+'</p>',b);
 }
 function admBlock(p){
   var tk=testerKits(p),free=MODES.slice(1).filter(function(m){return tk.indexOf(m)<0}),h='<div class="admx"><h4>Admin \u00b7 Tester role</h4>';
@@ -930,6 +937,7 @@ function admBlock(p){
   h+='<h4>Admin \u00b7 Cosmetics</h4>';
   gs.forEach(function(g){var t=topLv(p,g);if(!t)return;any=true;var c=COSMETICS.filter(function(x){return x.g===g&&x.lv===t})[0];h+='<div class="dcrow"><span class="cosb">'+c.draw(26)+'</span><b>'+esc(c.name)+'</b><span class="tb">Lv '+c.lv+' \u00b7 '+c.hrs+'+ hours</span><button type="button" data-aeq="'+c.id+'">'+(cur===c.id?'Unequip':'Equip')+'</button><button type="button" class="danger" data-cdel="'+g+'">Remove</button></div>'});
   if(!any)h+='<p class="meta">No cosmetics yet.</p>';
+  var sq=SEQ&&SEQ[p.name.toLowerCase()];if(sq&&sq.gh)h+='<p class="dcrow"><span class="meta">Changes equips from GitHub account <b>@'+esc(sq.gh)+'</b></span><button type="button" data-eqreset="1">Reset</button></p>';
   h+='<p class="dcrow"><select id="cgs" aria-label="Cosmetic level">'+COSMETICS.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+' \u00b7 '+c.hrs+'+ hours (Lv '+c.lv+')</option>'}).join('')+'</select><button type="button" id="cgv">Give / set level</button></p>';
   return h+'</div>';
 }
@@ -1004,6 +1012,8 @@ card.addEventListener('click',function(e){
   }else if(t.dataset.cdel){
     var gg=t.dataset.cdel;p.cos=(p.cos||[]).filter(function(i){var x=cosOf(i);return !(x&&x.g===gg)});if(!p.cos.length)delete p.cos;
     var ce2=cosOf(p.eq||'');if(ce2&&ce2.g===gg){p.eq='';p.eqt=Date.now()}redo();
+  }else if(t.dataset.eqreset){
+    eqReset(p.name,function(m){if(!m){delete SEQ[p.name.toLowerCase()];render()}openProfile(nm);if(m)alert(m)});
   }else if(t.dataset.aeq){
     var id2=t.dataset.aeq,on2=eqOf(p)===id2;setEq(p,on2?'':id2);openProfile(nm);if(!on2)playEq(nm);
   }
@@ -1184,6 +1194,7 @@ card.addEventListener('change',function(e){
 });
 
 setInterval(function(){if(ADM&&!document.hidden)loadReqs()},30000);
+loadEq();setInterval(function(){if(!document.hidden)loadEq()},30000);
 
 render();
 </script>
