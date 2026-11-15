@@ -215,6 +215,8 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
     <select id="fm"></select>
     <select id="ft"></select>
     <input id="fs" placeholder="Score, e.g. 1-0 (optional)" maxlength="7" size="22" aria-label="Score, player first (optional)">
+    <input id="fts" placeholder="Tester name (optional)" maxlength="16" size="20" aria-label="Tester name (optional)">
+    <select id="ftl" aria-label="Tester tier"></select>
     
     <button type="submit">Save rating</button>
     <button type="button" class="danger" id="fdt">Remove this tier</button>
@@ -289,11 +291,14 @@ function render(){
 var fm=document.getElementById("fm"),ft=document.getElementById("ft");
 MODES.slice(1).forEach(function(m){fm.add(new Option(m,m))});
 TIERS.forEach(function(t){ft.add(new Option(t,t))});
+document.getElementById("ftl").innerHTML='<option value="">Tester tier</option>'+TIERS.map(function(t){return "<option>"+t+"</option>"}).join("");
 document.getElementById("add").onsubmit=function(e){
   e.preventDefault();if(!ADM)return;
   var name=document.getElementById("fn").value.trim();if(!name)return;
-  var fo=null,sc=document.getElementById("fs").value.trim();
-  if(sc){var ns=normScore(sc),rs=ns&&scRes(ns);if(!rs){document.getElementById("fwarn").innerHTML='<div class="warn" role="alert"><p>Score should look like 1-0 or 0-10 (the player\u2019s score first, no ties).</p></div>';return}fo={r:rs,s:ns}}
+  var fo=null,sc=document.getElementById("fs").value.trim(),tn=document.getElementById("fts").value.trim(),tl=document.getElementById("ftl").value,fwb=document.getElementById("fwarn"),bad=function(m){fwb.innerHTML='<div class="warn" role="alert"><p>'+m+'</p></div>'};
+  if(tn&&!/^\w{3,16}$/.test(tn))return bad("Enter a valid tester name.");
+  if((tn||tl)&&!sc)return bad("Add the score too, so the tester can be saved with the fight.");
+  if(sc){var ns=normScore(sc),rs=ns&&scRes(ns);if(!rs){document.getElementById("fwarn").innerHTML='<div class="warn" role="alert"><p>Score should look like 1-0 or 0-10 (the player\u2019s score first, no ties).</p></div>';return}fo={r:rs,s:ns};if(tn)fo.tt=tn;if(tl)fo.tl=tl}
   var p=P.filter(function(x){return x.name.toLowerCase()===name.toLowerCase()})[0];
   if(!p){var bi=BAN.map(function(x){return x.name.toLowerCase()}).indexOf(name.toLowerCase());if(bi>-1){p=BAN.splice(bi,1)[0];delete p.ban;p.t={};P.push(p)}else{p={name:name,region:"–",t:{}};P.push(p)}}
   if(pendingSkin){p.skin=pendingSkin;pendingSkin=null}var old=p.t[fm.value],hh=hist(p,fm.value);var en0={t:ft.value,ts:Date.now()};if(fo)en0.f=[fo];hh.push(en0);p.t[fm.value]=ft.value;mode=fm.value;flash=p.name;if(TIERS.indexOf(ft.value)<=4)LOG.unshift({s:p.name+(old?" moved from "+old+" to ":" set to ")+ft.value+" in "+fm.value,n:p.name,m:fm.value,t:ft.value,big:TIERS.indexOf(ft.value)<=4,d:new Date().toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})});LOG=LOG.slice(0,6);drawTicker();e.target.reset();render();touch();
