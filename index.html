@@ -212,6 +212,14 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
 @keyframes lrise{0%{opacity:0;transform:translate3d(0,0,0)}8%{opacity:var(--o,.8)}90%{opacity:var(--o,.8)}100%{opacity:0;transform:translate3d(var(--x,30px),calc(-100vh - 60px),0)}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bgfx .lt{background:#bffbf0;box-shadow:0 0 6px 2px rgba(94,234,212,.9),0 0 22px 8px rgba(94,234,212,.5)}}
 :root[data-theme="dark"] .bgfx .lt{background:#bffbf0;box-shadow:0 0 6px 2px rgba(94,234,212,.9),0 0 22px 8px rgba(94,234,212,.5)}
+.top.pcs.cs{position:relative}
+.top.pcs.cs1{background:linear-gradient(90deg,color-mix(in srgb,#f7cf4f 24%,var(--panel)),var(--panel) 80%);border-color:color-mix(in srgb,#d4a017 70%,var(--line))}
+.top.pcs.cs2{background:linear-gradient(90deg,color-mix(in srgb,#f5b942 34%,var(--panel)),color-mix(in srgb,#f7cf4f 14%,var(--panel)));border-color:#d4a017}
+.top.pcs.cs3{background:linear-gradient(110deg,color-mix(in srgb,#f5b942 38%,var(--panel)),color-mix(in srgb,#fff3b0 18%,var(--panel)),color-mix(in srgb,#f5b942 38%,var(--panel)));background-size:220% 100%;animation:csflow 6s linear infinite;border-color:#e0a82e;box-shadow:0 0 14px rgba(247,207,79,.4)}
+.top.pcs.cs4{background:linear-gradient(120deg,color-mix(in srgb,#f7cf4f 38%,var(--panel)),color-mix(in srgb,#d4a017 26%,var(--panel)));border-color:#f7cf4f;box-shadow:0 0 18px rgba(247,207,79,.55)}
+.top.pcs{position:relative;overflow:hidden;border:1px solid #d4a017;border-radius:14px;padding:12px}
+.top.pcs>*:not(.cbg){position:relative;z-index:1}
+.top.pcs .gc{right:3%}
 </style>
 </head>
 <body>
@@ -335,7 +343,7 @@ function av(name,sz){var sk=skinOf(name);if(sk)return '<img class="av" alt="" wi
 function openProfile(n){
   var p=P.filter(function(x){return x.name===n})[0];if(!p){var bp=BAN.filter(function(x){return x.name===n})[0];if(bp)return openBanned(bp);closeP();return}
   var all=P.slice().sort(function(a,b){return pts(b)-pts(a)}),chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<button class="chip '+cls(p.t[m])+'" data-m="'+m+'" data-tt="'+p.t[m]+'" data-tip="'+m+' · '+PTS[p.t[m]]+' points · click for history">'+icon(m,24)+p.t[m]+evTag(p,m)+'</button>'}).join(' ');
-  card.innerHTML='<div class="top">'+av(p.name,96)+'<div><h3>'+esc(p.name)+'</h3><div class="pbadge">'+rkb(p)+'</div><div class="pst"><div class="r'+Math.min(+rnk(p,all)||4,4)+'"><span>Rank</span><b>#'+(rnk(p,all))+'</b></div><div><span>Points</span><b>'+pts(p)+'</b></div></div></div></div><div class="chips">'+chips+'</div><div id="hist" data-p="'+esc(p.name)+'"><p class="meta">Select a tier to see its history.</p></div><div id="warn"></div><p><button id="x">Close</button> <button class="danger" id="delp">Delete player</button></p>';
+  card.innerHTML='<div class="top'+(rowCls(p)?' pcs'+rowCls(p):'')+'">'+rowBg(p)+av(p.name,96)+'<div><h3>'+esc(p.name)+'</h3><div class="pbadge">'+rkb(p)+'</div><div class="pst"><div class="r'+Math.min(+rnk(p,all)||4,4)+'"><span>Rank</span><b>#'+(rnk(p,all))+'</b></div><div><span>Points</span><b>'+pts(p)+'</b></div></div></div></div><div class="chips">'+chips+'</div><div id="hist" data-p="'+esc(p.name)+'"><p class="meta">Select a tier to see its history.</p></div><div id="warn"></div><p><button id="x">Close</button> <button class="danger" id="delp">Delete player</button></p>';
   openM();
 }
 var lastF=null;
