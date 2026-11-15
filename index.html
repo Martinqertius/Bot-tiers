@@ -214,6 +214,7 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
     <input id="fn" placeholder="Player name" required="" maxlength="16">
     <select id="fm"></select>
     <select id="ft"></select>
+    <input id="fs" placeholder="Score, e.g. 1-0 (optional)" maxlength="7" size="22" aria-label="Score, player first (optional)">
     
     <button type="submit">Save rating</button>
     <button type="button" class="danger" id="fdt">Remove this tier</button>
@@ -291,9 +292,11 @@ TIERS.forEach(function(t){ft.add(new Option(t,t))});
 document.getElementById("add").onsubmit=function(e){
   e.preventDefault();if(!ADM)return;
   var name=document.getElementById("fn").value.trim();if(!name)return;
+  var fo=null,sc=document.getElementById("fs").value.trim();
+  if(sc){var ns=normScore(sc),rs=ns&&scRes(ns);if(!rs){document.getElementById("fwarn").innerHTML='<div class="warn" role="alert"><p>Score should look like 1-0 or 0-10 (the player\u2019s score first, no ties).</p></div>';return}fo={r:rs,s:ns}}
   var p=P.filter(function(x){return x.name.toLowerCase()===name.toLowerCase()})[0];
   if(!p){var bi=BAN.map(function(x){return x.name.toLowerCase()}).indexOf(name.toLowerCase());if(bi>-1){p=BAN.splice(bi,1)[0];delete p.ban;p.t={};P.push(p)}else{p={name:name,region:"–",t:{}};P.push(p)}}
-  if(pendingSkin){p.skin=pendingSkin;pendingSkin=null}var old=p.t[fm.value],hh=hist(p,fm.value);hh.push({t:ft.value,ts:Date.now()});p.t[fm.value]=ft.value;mode=fm.value;flash=p.name;if(TIERS.indexOf(ft.value)<=4)LOG.unshift({s:p.name+(old?" moved from "+old+" to ":" set to ")+ft.value+" in "+fm.value,n:p.name,m:fm.value,t:ft.value,big:TIERS.indexOf(ft.value)<=4,d:new Date().toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})});LOG=LOG.slice(0,6);drawTicker();e.target.reset();render();touch();
+  if(pendingSkin){p.skin=pendingSkin;pendingSkin=null}var old=p.t[fm.value],hh=hist(p,fm.value);var en0={t:ft.value,ts:Date.now()};if(fo)en0.f=[fo];hh.push(en0);p.t[fm.value]=ft.value;mode=fm.value;flash=p.name;if(TIERS.indexOf(ft.value)<=4)LOG.unshift({s:p.name+(old?" moved from "+old+" to ":" set to ")+ft.value+" in "+fm.value,n:p.name,m:fm.value,t:ft.value,big:TIERS.indexOf(ft.value)<=4,d:new Date().toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})});LOG=LOG.slice(0,6);drawTicker();e.target.reset();render();touch();
 };
 var _qt;q.oninput=function(){clearTimeout(_qt);_qt=setTimeout(render,120)};document.addEventListener('keydown',function(e){if(e.key==='/'&&!/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||'')&&!modal.classList.contains('open')){e.preventDefault();q.focus()}});
 var flash="",LOG=[],modal=document.getElementById("modal"),card=document.getElementById("card");
