@@ -188,6 +188,12 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
 .chip.t3{background:#c67421}.chip.t3.lt{background:#a9743e}
 .chip.t4{background:#37976b}.chip.t4.lt{background:#488669}
 .chip.t5{background:#5178c1}.chip.t5.lt{background:#647eae}
+#ctip{position:fixed;z-index:50;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--acc);font-size:11px;padding:5px 8px;border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.26);white-space:nowrap}
+#ctip .tr{display:flex;align-items:center;gap:6px}#ctip .tr b{font-weight:700}#ctip .tv{font-weight:800;font-size:12px;color:var(--acc)}#ctip .tv small{font-size:9px;font-weight:700;opacity:.8}
+#ctip .chip{color:#fff;margin:0;font-size:10px;padding:1px 6px}#ctip .th{display:block;margin-top:3px;font-size:10px;color:var(--mute)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #ctip .tv{color:#5eead4}}
+:root[data-theme="dark"] #ctip .tv{color:#5eead4}
+#ctip[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -260,7 +266,7 @@ function render(){
     if(!L.length)h='<p class="empty">'+(P.length?'No players match that search.':'No players yet. Log in as admin to add the first one.')+'</p>';
     var all=P.slice().sort(function(a,b){return pts(b)-pts(a)});
     L.forEach(function(p){
-      var chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<span class="chip '+cls(p.t[m])+'" title="'+m+'">'+icon(m,14)+p.t[m]+"</span>"}).join("");
+      var chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<span class="chip '+cls(p.t[m])+'" data-tt="'+p.t[m]+'" data-tip="'+m+' · '+PTS[p.t[m]]+' points" tabindex="0">'+icon(m,14)+p.t[m]+"</span>"}).join("");
       h+='<div class="row'+(flash===p.name?' flash':'')+rowCls(p)+'" tabindex="0" role="button" data-n="'+esc(p.name)+'">'+rowBg(p)+'<div class="rank">'+(rnk(p,all))+'</div>'+av(p.name,44)+'<div><div class="name">'+esc(p.name)+' '+rkb(p)+tbg(p)+'</div><div class="chips">'+chips+'</div></div><div class="cx">'+cxHtml(p,32)+'</div><div class="pts">'+pts(p)+'<span>points</span></div></div>';
     });
   }else{
@@ -302,7 +308,7 @@ function av(name,sz){var sk=skinOf(name);if(sk)return '<img class="av" alt="" wi
 }
 function openProfile(n){
   var p=P.filter(function(x){return x.name===n})[0];if(!p){var bp=BAN.filter(function(x){return x.name===n})[0];if(bp)return openBanned(bp);closeP();return}
-  var all=P.slice().sort(function(a,b){return pts(b)-pts(a)}),chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<button class="chip '+cls(p.t[m])+'" data-m="'+m+'" title="'+m+' history">'+icon(m,24)+p.t[m]+evTag(p,m)+'</button>'}).join(' ');
+  var all=P.slice().sort(function(a,b){return pts(b)-pts(a)}),chips=Object.keys(p.t).sort(function(a,b){return TIERS.indexOf(p.t[a])-TIERS.indexOf(p.t[b])}).map(function(m){return '<button class="chip '+cls(p.t[m])+'" data-m="'+m+'" data-tt="'+p.t[m]+'" data-tip="'+m+' · '+PTS[p.t[m]]+' points · click for history">'+icon(m,24)+p.t[m]+evTag(p,m)+'</button>'}).join(' ');
   card.innerHTML='<div class="top">'+av(p.name,96)+'<div><h3>'+esc(p.name)+'</h3><div class="pbadge">'+rkb(p)+'</div><div class="pst"><div class="r'+Math.min(+rnk(p,all)||4,4)+'"><span>Rank</span><b>#'+(rnk(p,all))+'</b></div><div><span>Points</span><b>'+pts(p)+'</b></div></div></div></div><div class="chips">'+chips+'</div><div id="hist" data-p="'+esc(p.name)+'"><p class="meta">Select a tier to see its history.</p></div><div id="warn"></div><p><button id="x">Close</button> <button class="danger" id="delp">Delete player</button></p>';
   openM();
 }
@@ -1030,7 +1036,6 @@ openProfile=function(n){
   var pb=card.querySelector('.pbadge'),cx=cxHtml(p,26);if(pb&&cx)pb.insertAdjacentHTML('beforeend',' '+cx);
   var tk=testerKits(p),h='';
   if(tk.length)h+='<div class="dcrow">'+tk.map(function(m){return '<span class="tb">'+icon(m,14)+esc(m)+' tester</span>'}).join('')+'</div>';
-  var tme=tsMe();if(tme&&tme!==p&&testerKits(tme).length)h+='<div class="dcrow"><button type="button" id="tsopen">Tester tools</button></div>';
   if(ADM)h+=admBlock(p);
   if(h)hs2.insertAdjacentHTML('beforebegin',h);
 };
@@ -1091,158 +1096,25 @@ function rqDec(s,eq){
   }catch(e){return null}
 }
 function pn(n){var x=P.filter(function(y){return y.name.toLowerCase()===String(n).toLowerCase()})[0];return x?x.name:n}
-function rqServerDone(id,msg){
-  SRQ=SRQ.filter(function(x){return x.id!==id});drawRq();reqModal(msg);
-  var k=akey();if(k)api('/requests/resolve',{method:'POST',tok:k,body:{id:id}}).catch(function(e){reqModal(msg+' (server: '+e.message+')')});
-}
-function reqOpen(msg){
-  if(!ADM)return;
-  if(!LINK_API)return ghReqs(function(){rqAuto();drawRq();reqModal(msg)});
-  var k=akey();if(!k)return reqModal(msg);
-  api('/requests',{tok:k}).then(function(a){SRQ=Array.isArray(a)?a:[];drawRq();reqModal(msg)}).catch(function(e){try{localStorage.removeItem('bt:ak')}catch(x){}reqModal('Couldn\u2019t reach the server: '+e.message)});
-}
-function tsDry(act){
-  var lc=function(s){return String(s).toLowerCase()},pick=function(L){return L.filter(function(x){return lc(x.name)===lc(act.me)||lc(x.name)===lc(act.n)}).map(function(x){return JSON.parse(JSON.stringify(x))})};
-  return tsApply(act,{P:pick(P),BAN:pick(BAN),LOG:[]});
-}
-function rqCheck(o){
-  var d=tsDry(o);if(!d.ok)return d;
-  var tp=P.filter(function(x){return x.name.toLowerCase()===o.me.toLowerCase()})[0],l=tp&&lnk(tp);
-  if(l&&String(o.d)!==String(l))return {ok:false,msg:'The Discord account on this request isn\u2019t the one linked to '+tp.name+'.'};
-  return d;
-}
-function rqDesc(o){return o.type==='give'?'Give <b>'+esc(o.tier)+'</b> to <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b> \u2013 score <b>'+esc(o.s)+'</b> ('+esc(o.n)+' '+scRes(o.s).toLowerCase()+')':'Toggle <b>+Eval</b> on <b>'+esc(o.n)+'</b> in <b>'+esc(o.kit)+'</b>'}
-function reqModal(msg){
-  if(!ADM)return;
-  var items=[];
-  SRQ.forEach(function(r){var o=rqVal(r);if(o)items.push({o:o,k:'s:'+r.id})});
-  GRQ.forEach(function(r){if(r.o.type!=='equip')items.push({o:r.o,k:'g:'+r.n,gh:r.u})});
-  REQ.forEach(function(raw,i){var o=rqDec(raw);if(o)items.push({o:o,k:'c:'+i})});
-  var h='<h3>Inbox</h3><p class="meta" style="font-size:13px">'+(LINK_API?'Tier requests from testers arrive here by themselves. You can also paste a request code below.':'Tier requests from testers show up here by themselves (they come through GitHub). Accept or reject each one. You can also paste a request code below.')+'</p><p><textarea id="rqin" rows="3" placeholder="Paste request code(s) here" aria-label="Request codes"></textarea></p><p><button id="rqadd" type="button">Add</button></p><p id="rqm" class="meta" role="status">'+esc(msg||'')+'</p>';
-  h+=items.length?items.map(function(it){
-    var o=it.o,d=rqCheck(o),gm='',trust=false;
-    if(it.gh){var kn=GHMAP[o.me.toLowerCase()];
-      if(!kn)gm='<div class="meta" style="color:#b7791f">First request from this tester. Make sure GitHub user <b>@'+esc(it.gh)+'</b> is really them.</div>';
-      else if(kn.toLowerCase()!==it.gh.toLowerCase()){trust=true;d={ok:false,msg:'This GitHub account (@'+it.gh+') is different from the one used before (@'+kn+').'}}}
-    return '<div class="cos" style="margin-top:8px"><div><b>'+esc(pn(o.me))+'</b> <span class="meta">('+(it.gh?'GitHub: @'+esc(it.gh)+' \u00b7 ':'')+'Discord: '+esc(String(o.dn||'?'))+')</span></div><div>'+rqDesc(o)+'</div>'+gm+'<div class="meta" style="color:'+(d.ok?'#1f9d55':'#c0392b')+'">'+(d.ok?'Allowed \u2713':'Not allowed: '+esc(d.msg))+'</div><div class="dcrow"><button type="button" data-rqa="'+esc(it.k)+'"'+(d.ok?'':' disabled')+'>Accept</button><button type="button" class="danger" data-rqr="'+esc(it.k)+'">Reject</button>'+(trust?'<button type="button" data-rqt="'+esc(it.k)+'">Trust @'+esc(it.gh)+'</button>':'')+'</div></div>';
-  }).join(''):'<p class="empty">Your inbox is empty.</p>';
-  showM(h+'<p>'+CLOSE+'</p>',tsEl('rqbtn'));
-}
-function drawRq(){var b=tsEl('rqbtn'),n=REQ.length+SRQ.length+GRQ.filter(function(x){return x.o.type!=='equip'}).length;if(b){b.textContent='Inbox'+(n?' ('+n+')':'');b.classList.toggle('rqnew',n>0)}}
-function tsOpts(me,kit){var i=TIERS.indexOf(me.t[kit]);return TIERS.filter(function(t,k){return k>=i}).map(function(t){return '<option>'+t+'</option>'}).join('')}
-function tsMe(){return ME?dcFind():null}
-function tsFindP(n){return P.filter(function(x){return x.name.toLowerCase()===n.toLowerCase()})[0]}
-function testerTools(pref){
-  var me=tsMe(),b=tsEl('tsbtn');
-  if(!me)return showM('<h3>Tester tools</h3><p class="meta">Log in with Discord and link your Minecraft account first.</p><p>'+CLOSE+'</p>',b);
-  var kits=testerKits(me).filter(function(m){return me.t[m]});
-  if(!kits.length)return showM('<h3>Tester tools</h3><p class="meta">'+(testerKits(me).length?'You need a tier of your own in the kit you test before you can give tiers.':'You aren\u2019t a tester yet.')+'</p><p>'+CLOSE+'</p>',b);
-  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p><input id="tss" placeholder="Score, e.g. 1-0" maxlength="7" style="width:100%" aria-label="Score"></p><p class="meta" style="font-size:12px">Score is the player first: 1-0 means the player won, 0-1 means the player lost. Needed for a tier request.</p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button> '+CLOSE+'</p>',b);
-}
-function tsCheck(){
-  var me=tsMe();if(!me)return null;
-  var n=tsEl('tsn').value.trim(),kit=tsEl('tsk').value;
-  if(!/^\w{3,16}$/.test(n)){tsMsg('Enter a valid Minecraft name.',true);return null}
-  if(testerKits(me).indexOf(kit)<0||!me.t[kit]){tsMsg('You aren\u2019t a tester in '+kit+'.',true);return null}
-  if(n.toLowerCase()===me.name.toLowerCase()){tsMsg('You can\u2019t change your own tier.',true);return null}
-  return {me:me,n:n,kit:kit,mi:TIERS.indexOf(me.t[kit])};
-}
-/* Applies one tester action to a state {P,BAN,LOG}; used on the local list and again on the freshly loaded saved list. */
-function tsApply(act,S){
-  var lc=function(s){return String(s).toLowerCase()},kit=act.kit;
-  var meP=S.P.filter(function(x){return lc(x.name)===lc(act.me)})[0];
-  if(!meP||(meP.tr||[]).indexOf(kit)<0||!meP.t[kit]||MODES.indexOf(kit)<1)return {ok:false,msg:'You aren\u2019t a tester in '+kit+'.'};
-  if(lc(act.n)===lc(meP.name))return {ok:false,msg:'You can\u2019t change your own tier.'};
-  var mi=TIERS.indexOf(meP.t[kit]),p=S.P.filter(function(x){return lc(x.name)===lc(act.n)})[0];
-  if(act.type==='give'){
-    var tier=act.tier;
-    if(TIERS.indexOf(tier)<0)return {ok:false,msg:'Unknown tier.'};
-    if(TIERS.indexOf(tier)<mi)return {ok:false,msg:'You can\u2019t give a tier higher than your own ('+meP.t[kit]+').'};
-    if(p&&p.t[kit]&&TIERS.indexOf(p.t[kit])<mi)return {ok:false,msg:p.name+' is above your tier in '+kit+'.'};
-    var fi=null;if(act.s){var rs=scRes(act.s);if(!rs)return {ok:false,msg:'The score can\u2019t be a tie.'};fi={r:rs,s:act.s,tt:meP.name,tl:meP.t[kit]}}
-    if(!p){var bi=S.BAN.map(function(x){return lc(x.name)}).indexOf(lc(act.n));if(bi>-1){p=S.BAN.splice(bi,1)[0];delete p.ban;p.t={};S.P.push(p)}else{p={name:act.n,region:'\u2013',t:{}};S.P.push(p)}}
-    var old=p.t[kit],hh=hist(p,kit),en={t:tier,ts:Date.now()};if(fi)en.f=[fi];hh.push(en);p.t[kit]=tier;
-    if(TIERS.indexOf(tier)<=4){S.LOG.unshift({s:p.name+(old?' moved from '+old+' to ':' set to ')+tier+' in '+kit,n:p.name,m:kit,t:tier,big:true,d:sd()});if(S.LOG.length>6)S.LOG.length=6}
-    return {ok:true,msg:p.name+' is now '+tier+' in '+kit+(fi?' ('+fi.r+' '+fi.s+')':'')+'.',p:p};
-  }
-  if(!p||!p.t[kit])return {ok:false,msg:'That player has no '+kit+' tier.'};
-  if(TIERS.indexOf(p.t[kit])<mi)return {ok:false,msg:p.name+' is above your tier in '+kit+'.'};
-  if(!canEv(p.t[kit]))return {ok:false,msg:'+Eval can only be given on LT3, LT2 or LT1.'};
-  hist(p,kit);var e=evOf(p,kit);if(!e)return {ok:false,msg:'Couldn\u2019t find that rating.'};
-  var had=!!e.ev;if(had)delete e.ev;else e.ev={ts:Date.now(),by:meP.name};
-  return {ok:true,msg:had?'+Eval removed from '+p.name+'.':'+Eval given to '+p.name+'.',p:p};
-}
-function tsRequest(type){
-  var c=tsCheck();if(!c)return;
-  var act={type:type,me:c.me.name,n:c.n,kit:c.kit};if(type==='give'){act.tier=tsEl('tst').value;var sc=normScore(tsEl('tss').value);if(!sc)return tsMsg('Enter the score like 1-0 (the player first).',true);if(!scRes(sc))return tsMsg('The score can\u2019t be a tie.',true);act.s=sc}
-  if(ADM){var r0=tsApply(act,{P:P,BAN:BAN,LOG:LOG});if(!r0.ok)return tsMsg(r0.msg,true);if(type==='give'){mode=c.kit;flash=r0.p.name;drawTicker()}render();touch();return tsMsg(r0.msg)}
-  var r=tsDry(act);if(!r.ok)return tsMsg(r.msg,true);
-  if(LINK_API){
-    var tk=dcTok();if(!tk)return tsMsg('Your Discord login expired. Log in again, then retry.',true);
-    tsMsg('Sending\u2026');
-    api('/request',{method:'POST',tok:tk,body:act}).then(function(){tsMsg('Sent to the owner \u2713 They accept it in their Inbox.')}).catch(function(e){tsMsg(e.message,true)});
-    return;
-  }
-  act.d=ME.id;act.dn=String(ME.n);act.ts=Date.now();
-  var code=rqEnc(act),gu=issueUrl('[Tester request] '+rqPlain(act),'Tester request from '+act.me+' (Discord: '+act.dn+'): '+rqPlain(act),code);
-  tsMsg(gu?'Request ready. Press the button to send it to the owner on GitHub. The change happens when they approve it.':'Request ready. Send this code to the owner in a private message on Discord. The change happens when they approve it.');
-  tsEl('tsc').innerHTML=(gu?'<p><a class="gbtn" target="_blank" rel="noopener" href="'+esc(gu)+'">Send to owner on GitHub</a></p><p class="meta" style="font-size:12px">GitHub opens with everything filled in. Press \u201cSubmit new issue\u201d (you need a free GitHub account). No account? Copy the code below and send it to the owner in a private message.</p>':'')+'<textarea id="tscode" rows="3" readonly style="width:100%" aria-label="Request code">'+code+'</textarea><p><button type="button" id="tscopy">Copy code</button></p>';
-}
-(function(){
-  var b=document.createElement('button');b.id='tsbtn';b.type='button';b.textContent='Tester tools';b.hidden=true;
-  var cb=document.getElementById('cosbtn');cb.parentNode.insertBefore(b,cb);
-  b.onclick=function(){testerTools('')};
-  var q=document.createElement('button');q.id='rqbtn';q.type='button';q.textContent='Inbox';cb.parentNode.insertBefore(q,cb);q.onclick=function(){reqOpen('')};
-  var st=document.createElement('style');st.textContent='body:not(.admin) #rqbtn{display:none!important}#rqbtn{background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:700}';document.head.appendChild(st);
-  drawRq();
-})();
-function drawTs(){var b=tsEl('tsbtn');if(!b)return;var me=tsMe();b.hidden=!(me&&testerKits(me).length)}
-var _r0=render;render=function(){_r0.apply(this,arguments);drawTs();drawRq()};
-var _dd0=drawDc;drawDc=function(){_dd0();drawTs()};
-card.addEventListener('click',function(e){
-  var t=e.target.closest?e.target.closest('button'):null;if(!t)return;
-  if(t.id==='tsopen'){var hd=tsEl('hist');testerTools(hd?hd.dataset.p:'')}
-  else if(t.id==='tsgo')tsRequest('give');
-  else if(t.id==='tsev')tsRequest('eval');
-  else if(t.id==='tscopy'){var ta=tsEl('tscode');if(ta){ta.select();try{navigator.clipboard.writeText(ta.value)}catch(x){try{document.execCommand('copy')}catch(y){}}t.textContent='Copied \u2713'}}
-  else if(ADM&&t.id==='rqadd'){
-    var toks=(tsEl('rqin').value||'').split(/\s+/).filter(function(s){return s.indexOf('BT1.')===0}),add=0,bad=0;
-    toks.forEach(function(s){if(!rqDec(s))bad++;else if(REQ.indexOf(s)<0){REQ.push(s);add++}});
-    rqSave();drawRq();reqModal(!toks.length?'No request code found in that text.':(add+' added'+(bad?', '+bad+' invalid':'')+'.'));
-  }
-  else if(ADM&&t.dataset.rqt!==undefined){
-    var kt=t.dataset.rqt.split(':'),gi=GRQ.filter(function(x){return String(x.n)===kt.slice(1).join(':')})[0];
-    if(gi){GHMAP[gi.o.me.toLowerCase()]=gi.u;try{localStorage.setItem('bt:ghmap',JSON.stringify(GHMAP))}catch(x){}reqModal('Now trusting @'+gi.u+' for '+pn(gi.o.me)+'.')}
-  }
-  else if(ADM&&t.dataset.rqr!==undefined){
-    var kr=t.dataset.rqr.split(':'),krid=kr.slice(1).join(':');
-    if(kr[0]==='s')rqServerDone(krid,'Rejected.');
-    else if(kr[0]==='g'){doneMark(+krid);closeIssue(+krid,'not_planned');GRQ=GRQ.filter(function(x){return String(x.n)!==krid});drawRq();reqModal('Rejected.')}
-    else{REQ.splice(+krid,1);rqSave();drawRq();reqModal('Rejected.')}
-  }
-  else if(ADM&&t.dataset.rqa!==undefined){
-    var ka=t.dataset.rqa.split(':'),kid=ka.slice(1).join(':'),git=null,o;
-    if(ka[0]==='s')o=rqVal(SRQ.filter(function(x){return x.id===kid})[0]);
-    else if(ka[0]==='g'){git=GRQ.filter(function(x){return String(x.n)===kid})[0];o=git&&git.o}
-    else o=rqDec(REQ[+kid]);
-    if(!o)return;
-    var rr=rqCheck(o);if(!rr.ok)return reqModal(rr.msg);
-    var ap=tsApply(o,{P:P,BAN:BAN,LOG:LOG});if(!ap.ok)return reqModal(ap.msg);
-    if(o.type==='give'){mode=o.kit;flash=ap.p.name;drawTicker()}
-    render();touch();
-    if(ka[0]==='s')rqServerDone(kid,'Accepted: '+ap.msg);
-    else if(git){GHMAP[o.me.toLowerCase()]=git.u;try{localStorage.setItem('bt:ghmap',JSON.stringify(GHMAP))}catch(x){}doneMark(git.n);closeIssue(git.n,'completed');GRQ=GRQ.filter(function(x){return x.n!==git.n});drawRq();reqModal('Accepted: '+ap.msg)}
-    else{REQ.splice(+kid,1);rqSave();drawRq();reqModal('Accepted: '+ap.msg)}
-  }
-});
-card.addEventListener('change',function(e){
-  if(e.target.id!=='tsk')return;var me=tsMe();if(me&&me.t[e.target.value])tsEl('tst').innerHTML=tsOpts(me,e.target.value);
-});
+function drawRq(){}
 
 setInterval(function(){if(ADM&&!document.hidden)loadReqs()},30000);
 loadEq();setInterval(function(){if(!document.hidden)loadEq()},30000);
 
 render();
+
+(function(){
+  var tp=document.createElement('div');tp.id='ctip';tp.setAttribute('role','tooltip');tp.hidden=true;document.body.appendChild(tp);
+  function show(el){var pr=el.getAttribute('data-tip').split(' · '),tt=el.getAttribute('data-tt')||'';
+    tp.innerHTML='<span class="tr"><b>'+pr[0]+'</b>'+(tt?'<span class="chip '+cls(tt)+'">'+tt+'</span>':'')+'<span class="tv">'+pr[1].replace(' points','')+' <small>pts</small></span></span>'+(pr[2]?'<span class="th">'+pr[2]+'</span>':'');tp.hidden=false;var b=el.getBoundingClientRect(),w=tp.offsetWidth,h=tp.offsetHeight;
+    var x=Math.max(6,Math.min(innerWidth-w-6,b.left+b.width/2-w/2)),y=b.top-h-8;if(y<6)y=b.bottom+8;tp.style.left=x+'px';tp.style.top=y+'px'}
+  function find(e){return e.target.closest?e.target.closest('[data-tip]'):null}
+  document.addEventListener('mouseover',function(e){var el=find(e);if(el)show(el)});
+  document.addEventListener('mouseout',function(e){if(find(e))tp.hidden=true});
+  document.addEventListener('focusin',function(e){var el=find(e);if(el)show(el)});
+  document.addEventListener('focusout',function(){tp.hidden=true});
+  window.addEventListener('scroll',function(){tp.hidden=true},true);
+})();
 </script>
 </body>
 </html>
