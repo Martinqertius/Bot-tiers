@@ -232,20 +232,18 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
 #card.uihide:has(>.pimg){cursor:pointer;background:var(--pimg) center 30%/cover,var(--panel);background-attachment:local}
 #card.uihide:has(>.pimg)>*:not(.pimg){visibility:hidden}
 
-.hd{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-#tcbtn{background:linear-gradient(135deg,#f7cf4f,#e29a55);border-color:#d4a017;color:#3a2600;font-weight:700}
-#tcbtn[hidden]{display:none}
 .tcf{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:10px 0}
 .tcf label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600}
 .tcf textarea{width:100%;min-height:54px;resize:vertical}
 .tcf .row4{display:flex;gap:6px;flex-wrap:wrap;width:100%}
 #tcc{display:block;width:100%;height:auto;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+#tcdc{display:none}
 </style>
 </head>
 <body>
 <template id="shell">
 <header>
-  <div class="hd"><h1 class="logo"><svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#06302c"></rect><rect x="4.5" y="14" width="7.5" height="12" rx="1.5" fill="#a9b8d0"></rect><rect x="12.25" y="7" width="7.5" height="19" rx="1.5" fill="#f7cf4f"></rect><rect x="20" y="17" width="7.5" height="9" rx="1.5" fill="#b8651f"></rect><rect x="12.25" y="7" width="7.5" height="3" rx="1.5" fill="#fff3b0"></rect><rect x="4.5" y="14" width="7.5" height="3" rx="1.5" fill="#dbe5f5"></rect><rect x="20" y="17" width="7.5" height="3" rx="1.5" fill="#e29a55"></rect></svg><span>Bot Tiers</span></h1><button id="tcbtn" type="button" hidden>Tier cards</button></div>
+  <h1 class="logo"><svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#06302c"></rect><rect x="4.5" y="14" width="7.5" height="12" rx="1.5" fill="#a9b8d0"></rect><rect x="12.25" y="7" width="7.5" height="19" rx="1.5" fill="#f7cf4f"></rect><rect x="20" y="17" width="7.5" height="9" rx="1.5" fill="#b8651f"></rect><rect x="12.25" y="7" width="7.5" height="3" rx="1.5" fill="#fff3b0"></rect><rect x="4.5" y="14" width="7.5" height="3" rx="1.5" fill="#dbe5f5"></rect><rect x="20" y="17" width="7.5" height="3" rx="1.5" fill="#e29a55"></rect></svg><span>Bot Tiers</span></h1>
   <div class="hr"><input id="q" type="search" placeholder="Search player" aria-label="Search player"><button id="sbtn" type="button" aria-pressed="false">Stats</button><button id="pbtn" type="button" aria-pressed="false" title="How many points each tier is worth">Points</button><button id="dcbtn" type="button" title="Log in with Discord">Log in with Discord</button><button id="cosbtn" type="button" title="Cosmetics">Cosmetics</button><button id="lkbtn" type="button" title="Approve a Discord link request">Link Discord</button><button id="xbtn" type="button" title="Download a backup">Export</button><button id="ibtn" type="button" title="Load a backup">Import</button><button id="abtn" type="button" aria-pressed="false">Admin login</button><button id="tbtn" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button><button id="svbtn" type="button" title="Save and publish your changes for everyone">Save</button><button id="pubst" type="button" title="Publish changes now" role="status"></button><input id="ifile" type="file" accept="application/json" aria-label="Import backup"></div>
 </header>
 <nav id="nav" aria-label="Gamemode"></nav>
@@ -1200,7 +1198,7 @@ function testerTools(pref){
   if(!me)return showM('<h3>Tester tools</h3><p class="meta">Log in with Discord and link your Minecraft account first.</p><p>'+CLOSE+'</p>',b);
   var kits=testerKits(me).filter(function(m){return me.t[m]});
   if(!kits.length)return showM('<h3>Tester tools</h3><p class="meta">'+(testerKits(me).length?'You need a tier of your own in the kit you test before you can give tiers.':'You aren\u2019t a tester yet.')+'</p><p>'+CLOSE+'</p>',b);
-  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p><input id="tss" placeholder="Score, e.g. 1-0" maxlength="7" style="width:100%" aria-label="Score"></p><p class="meta" style="font-size:12px">Score is the player first: 1-0 means the player won, 0-1 means the player lost. Needed for a tier request.</p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button> '+CLOSE+'</p>',b);
+  showM('<h3>Tester tools</h3><p class="meta" style="font-size:13px">You can ask for a tier up to your own tier in that kit (for example HT3 lets you ask for HT3 or lower), and for +Eval. The owner has to approve every request.</p><p><input id="tsn" placeholder="Minecraft name" maxlength="16" style="width:100%" value="'+esc(pref||'')+'" data-focus></p><p class="dcrow"><select id="tsk" aria-label="Kit">'+kits.map(function(m){return '<option value="'+m+'">'+m+' (you: '+me.t[m]+')</option>'}).join('')+'</select><select id="tst" aria-label="Tier">'+tsOpts(me,kits[0])+'</select></p><p><input id="tss" placeholder="Score, e.g. 1-0" maxlength="7" style="width:100%" aria-label="Score"></p><p class="meta" style="font-size:12px">Score is the player first: 1-0 means the player won, 0-1 means the player lost. Needed for a tier request.</p><p id="tsr" class="meta" role="status"></p><div id="tsc"></div><p class="dcrow"><button id="tsgo" type="button">Request tier</button><button id="tsev" type="button">Request +Eval</button><button id="tsdc" type="button">Make tier card</button> '+CLOSE+'</p>',b);
 }
 function tsCheck(){
   var me=tsMe();if(!me)return null;
@@ -1325,20 +1323,16 @@ render();
   bg.innerHTML=h;document.body.insertBefore(bg,document.body.firstChild);
 })();
 
-/* ---- tier cards: testers make a result image ---- */
+/* ---- tier cards (inside Tester tools) ---- */
 (function(){
   try{var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Silkscreen:wght@400;700&display=swap';document.head.appendChild(fl)}catch(e){}
-  var btn=document.getElementById('tcbtn'),SK={},CAT={Mace:['GROUND','AERIAL','DRAIN','DODGES']},W=926,H=694;
-  function canTc(){if(typeof ADM!=='undefined'&&ADM)return true;var p=(typeof ME!=='undefined'&&ME)?dcFind():null;return !!(p&&testerKits(p).length)}
-  function myKits(){if(typeof ADM!=='undefined'&&ADM)return MODES.slice(1);var p=dcFind();return p?testerKits(p):[]}
-  function draw(){if(btn)btn.hidden=!canTc()}
-  var _r=render;render=function(){var r=_r.apply(this,arguments);draw();return r};
-  setInterval(draw,1500);draw();
+  var SK={},CAT={Mace:['Ground','Aerial','Drain','Dodges']},W=1200,H=660,PX='"Silkscreen","Courier New",monospace',SN='"Nunito","Inter",Arial,sans-serif';
+  var TC={1:['#ffd75a','#e7a904'],2:['#c9d1de','#8b96ab'],3:['#e8944a','#c67421'],4:['#58c796','#37976b'],5:['#7d9fe0','#5178c1']};
   function loadImg(src){return new Promise(function(res){var i=new Image();i.crossOrigin='anonymous';i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
   function skin(name){
     if(!name)return Promise.resolve(null);
     if(SK[name])return SK[name];
-    var n=encodeURIComponent(name),L=['https://mc-heads.net/player/'+n+'/400','https://mc-heads.net/body/'+n+'/400'],sk=skinOf(name);
+    var n=encodeURIComponent(name),L=['https://mc-heads.net/player/'+n+'/500','https://mc-heads.net/body/'+n+'/500'],sk=skinOf(name);
     SK[name]=(function next(k){return k>=L.length?(sk?loadImg(sk):Promise.resolve(null)):loadImg(L[k]).then(function(i){return i||next(k+1)})})(0);
     return SK[name];
   }
@@ -1349,51 +1343,58 @@ render();
   }
   function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
   function wrap(c,t,x,y,mw,lh,max){var ws=String(t).split(/\s+/),l='',n=0,i,tt;for(i=0;i<ws.length;i++){tt=l?l+' '+ws[i]:ws[i];if(c.measureText(tt).width>mw&&l){c.fillText(l,x,y+n*lh);n++;l=ws[i];if(n>=max)return}else l=tt}if(l&&n<max)c.fillText(l,x,y+n*lh)}
-  var PX='"Silkscreen","Courier New",monospace',SN='"Nunito","Inter",Arial,sans-serif';
   function paint(cv,d,img,logo){
-    var c=cv.getContext('2d');cv.width=W;cv.height=H;
-    c.fillStyle='#1d2430';c.fillRect(0,0,W,H);
-    c.fillStyle='#252d3a';rr(c,35,116,855,502,28);c.fill();
+    var c=cv.getContext('2d'),k,y,g;cv.width=W;cv.height=H;c.textBaseline='alphabetic';
+    g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#06302c');g.addColorStop(.55,'#0a4a44');g.addColorStop(1,'#12332f');c.fillStyle=g;c.fillRect(0,0,W,H);
+    c.save();c.globalAlpha=.07;c.strokeStyle='#fff';c.lineWidth=2;for(k=-H;k<W;k+=34){c.beginPath();c.moveTo(k,H);c.lineTo(k+H,0);c.stroke()}c.restore();
+    g=c.createRadialGradient(190,330,10,190,330,380);g.addColorStop(0,'rgba(247,207,79,.28)');g.addColorStop(1,'rgba(247,207,79,0)');c.fillStyle=g;c.fillRect(0,0,W,H);
+    // top bar
+    if(logo)c.drawImage(logo,40,20,46,46);
+    c.fillStyle='#fff';c.font='800 34px '+SN;c.fillText('Bot Fight',98,55);
+    c.fillStyle='rgba(255,255,255,.1)';rr(c,820,20,340,46,23);c.fill();c.strokeStyle='#f7cf4f';c.lineWidth=2;c.stroke();
+    c.fillStyle='#fff';c.font='800 25px '+SN;c.textAlign='center';c.fillText('discord.gg/A2DKwzRyGm',990,52);c.textAlign='left';
     // skin
-    if(img){c.save();c.beginPath();c.rect(50,28,230,232);c.clip();var sc=Math.max(230/img.width,232/img.height);c.drawImage(img,50+(230-img.width*sc)/2,28,img.width*sc,img.height*sc);c.restore()}
-    else{c.fillStyle='#2e3747';rr(c,92,60,126,126,18);c.fill();c.fillStyle='#4a5468';c.font='800 70px '+SN;c.textAlign='center';c.fillText('?',155,150);c.textAlign='left';rr(c,70,196,170,60,14);c.fill()}
-    // name
-    c.textBaseline='alphabetic';c.fillStyle='#fff';c.shadowColor='rgba(255,255,255,.55)';c.shadowBlur=14;
-    var fs=58;c.font='700 '+fs+'px '+PX;while(c.measureText(d.name||'Player').width>640&&fs>26){fs-=2;c.font='700 '+fs+'px '+PX}
-    c.fillText(d.name||'Player',258,92);c.shadowBlur=0;
-    // tier
-    c.fillStyle='#f7c14f';c.shadowColor='rgba(247,193,79,.6)';c.shadowBlur=14;var tf=46;c.font='800 '+tf+'px '+SN;while(c.measureText(d.tier+' TIER').width>190&&tf>26){tf-=2;c.font='800 '+tf+'px '+SN}c.fillText(d.tier+' TIER',297,186);c.shadowBlur=0;
-    c.fillStyle='#8a93a6';c.font='600 24px '+SN;c.fillText('Gamemode',296,224);
-    c.fillStyle='#fff';c.font='600 21px '+SN;c.fillText(d.kit,296,254);
-    // category rows
-    var k,y;for(k=0;k<4;k++){y=310+k*72;
-      c.fillStyle='#8a93a6';c.font='800 25px '+SN;c.textAlign='left';c.fillText(d.cats[k].n,82,y);
-      c.fillStyle='#6ea0f0';c.textAlign='right';c.fillText(d.cats[k].t,460,y);c.textAlign='left';
-      c.fillStyle='#131a24';rr(c,82,y+14,380,13,6);c.fill();
-      var f=Math.max(.05,(10-TIERS.indexOf(d.cats[k].t))/10);c.fillStyle='#4a79c4';rr(c,82,y+14,380*f,13,6);c.fill()}
-    c.fillStyle='#8a93a6';c.font='800 25px '+SN;c.fillText('SCORE',82,598);c.fillStyle='#6ea0f0';c.textAlign='right';c.fillText(d.score||'N/A',460,598);c.textAlign='left';
+    c.fillStyle='rgba(255,255,255,.07)';rr(c,40,96,270,430,26);c.fill();c.strokeStyle='rgba(255,255,255,.18)';c.lineWidth=2;c.stroke();
+    if(img){c.save();rr(c,40,96,270,430,26);c.clip();var sc=Math.max(270/img.width,430/img.height);c.drawImage(img,40+(270-img.width*sc)/2,96+8,img.width*sc,img.height*sc);c.restore()}
+    else{c.fillStyle='#16524b';rr(c,92,150,166,166,24);c.fill();c.fillStyle='#2a7a70';c.font='800 96px '+SN;c.textAlign='center';c.fillText('?',175,268);c.textAlign='left';rr(c,70,336,210,150,22);c.fillStyle='#16524b';c.fill()}
+    // name + kit
+    c.fillStyle='#fff';c.shadowColor='rgba(247,207,79,.55)';c.shadowBlur=16;var fs=60;c.font='700 '+fs+'px '+PX;while(c.measureText(d.name||'Player').width>800&&fs>28){fs-=2;c.font='700 '+fs+'px '+PX}
+    c.fillText(d.name||'Player',344,160);c.shadowBlur=0;
+    c.fillStyle='#f7cf4f';c.font='800 22px '+SN;c.fillText(d.kit.toUpperCase()+'  \u2022  TEST RESULT',346,196);
+    // tier badge
+    var n=+d.tier.slice(2),col=TC[n]||TC[3];g=c.createLinearGradient(0,252,0,402);g.addColorStop(0,col[0]);g.addColorStop(1,col[1]);
+    c.shadowColor='rgba(0,0,0,.4)';c.shadowBlur=22;c.shadowOffsetY=8;c.fillStyle=g;rr(c,344,238,230,160,30);c.fill();c.shadowBlur=0;c.shadowOffsetY=0;
+    c.fillStyle='rgba(255,255,255,.9)';c.font='800 17px '+SN;c.textAlign='center';c.fillText('FINAL TIER',459,270);
+    c.fillStyle='#fff';c.shadowColor='rgba(0,0,0,.35)';c.shadowBlur=8;c.font='800 96px '+SN;c.fillText(d.tier,459,364);c.shadowBlur=0;c.textAlign='left';
+    // previous
+    c.fillStyle='rgba(255,255,255,.1)';rr(c,344,418,230,54,16);c.fill();
+    c.fillStyle='#9fc8c1';c.font='700 18px '+SN;c.fillText('PREVIOUS',360,452);
+    c.fillStyle='#fff';c.font='800 26px '+SN;c.textAlign='right';c.fillText(d.prev&&d.prev!=='N/A'?d.prev:'New',558,454);c.textAlign='left';
+    // breakdown
+    c.fillStyle='#9fc8c1';c.font='800 20px '+SN;c.fillText('BREAKDOWN',618,262);
+    c.fillStyle='rgba(255,255,255,.12)';rr(c,950,238,210,40,20);c.fill();
+    c.fillStyle='#fff';c.font='700 18px '+SN;c.fillText('SCORE',966,265);c.font='800 24px '+SN;c.textAlign='right';c.fillText(d.score||'N/A',1144,266);c.textAlign='left';
+    for(k=0;k<4;k++){y=314+k*50;
+      c.fillStyle='#fff';c.font='700 22px '+SN;c.fillText(d.cats[k].n,618,y);
+      c.fillStyle='#f7cf4f';c.font='800 22px '+SN;c.textAlign='right';c.fillText(d.cats[k].t,1160,y);c.textAlign='left';
+      var fl=10-TIERS.indexOf(d.cats[k].t),s;for(s=0;s<10;s++){c.fillStyle=s<fl?'#f7cf4f':'rgba(255,255,255,.14)';rr(c,618+s*54.5,y+10,50,10,5);c.fill()}}
     // comment
-    c.fillStyle='#141a23';rr(c,498,142,364,368,28);c.fill();
-    c.fillStyle='#8a93a6';c.font='800 25px '+SN;c.fillText('TESTER COMMENT',525,186);
-    c.fillStyle='#fff';c.font='600 21px '+SN;wrap(c,d.comment||'',526,226,312,28,9);
-    // tester / previous
-    c.fillStyle='#8a93a6';c.font='600 25px '+SN;c.fillText('TESTER',514,550);c.fillText('PREVIOUS',724,550);
-    c.fillStyle='#fff';c.font='400 17px '+PX;c.fillText(d.tester||'N/A',516,585);c.font='700 22px '+PX;c.fillText(d.prev||'N/A',755,585);
-    // footer
-    if(logo)c.drawImage(logo,44,632,46,46);
-    c.fillStyle='#fff';c.font='800 42px '+SN;c.fillText('Bot Fight',100,668);
-    c.textAlign='right';c.font='800 33px '+SN;c.fillText('discord.gg/A2DKwzRyGm',884,666);c.textAlign='left';
+    c.fillStyle='rgba(0,0,0,.28)';rr(c,344,512,816,112,22);c.fill();
+    c.fillStyle='#f7cf4f';c.font='800 70px '+SN;c.fillText('\u201c',360,576);
+    c.fillStyle='#fff';c.font='600 22px '+SN;wrap(c,d.comment||'No comment.',410,548,730,28,2);
+    c.fillStyle='#9fc8c1';c.font='700 17px '+SN;c.textAlign='right';c.fillText('Tested by '+(d.tester||'N/A'),1140,612);c.textAlign='left';
+    // bottom strip
+    c.fillStyle='rgba(255,255,255,.35)';c.font='600 15px '+SN;c.fillText('Bot Fight tier test',44,H-14);
   }
-  var cur={};
   function readForm(){
     var g=function(i){return document.getElementById(i)},kit=g('tck').value,tier=g('tct').value,cats=[],k,nm=CAT[kit]||['XXX','XXX','XXX','XXX'];
     for(k=0;k<4;k++)cats.push({n:nm[k],t:g('tcr'+k).value||tier});
     return {name:g('tcn').value.trim(),kit:kit,tier:tier,cats:cats,score:g('tcs').value.trim(),comment:g('tcm').value.trim(),tester:g('tct2').value.trim(),prev:g('tcp').value};
   }
-  var pt=0;
+  var pt=0,back='';
   function refresh(){
     var d=readForm(),cv=document.getElementById('tcc');if(!cv)return;
-    Promise.all([skin(d.name),logoImg(),(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 40px Nunito'),document.fonts.load('600 20px Nunito'),document.fonts.load('700 40px Silkscreen'),document.fonts.load('400 17px Silkscreen')]).catch(function(){}):0)]).then(function(r){if(document.getElementById('tcc')===cv)paint(cv,d,r[0],r[1])});
+    Promise.all([skin(d.name),logoImg(),(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 40px Nunito'),document.fonts.load('600 20px Nunito'),document.fonts.load('700 40px Silkscreen')]).catch(function(){}):0)]).then(function(r){if(document.getElementById('tcc')===cv)paint(cv,d,r[0],r[1])});
   }
   function later(){clearTimeout(pt);pt=setTimeout(refresh,220)}
   function autoPrev(){
@@ -1401,30 +1402,31 @@ render();
     for(i=0;i<P.length;i++)if(P[i].name.toLowerCase()===n){p=P[i];break}
     document.getElementById('tcp').value=(p&&p.t&&p.t[kit])||'N/A';
   }
-  function opts(a,sel,blank){return (blank?'<option value="">'+blank+'</option>':'')+a.map(function(t){return '<option'+(t===sel?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
-  function open(){
-    if(!canTc())return;
-    var kits=myKits();if(!kits.length)return;
-    var me=dcFind(),mn=me?me.name:'';
-    showM('<h3>Tier card</h3><p class="meta" style="font-size:13px">Type the player\u2019s name to see their skin, fill in the result and download the image.</p>'+
-      '<div class="tcf"><label>Player name<input id="tcn" maxlength="16" placeholder="Player name" autocomplete="off"></label>'+
-      '<label>Gamemode<select id="tck">'+opts(kits,kits[0])+'</select></label>'+
-      '<label>Final tier<select id="tct">'+opts(TIERS,'LT3')+'</select></label>'+
-      '<label>Score<input id="tcs" maxlength="7" size="8" placeholder="1-3"></label>'+
-      '<label>Tester<input id="tct2" maxlength="16" size="14" value="'+esc(mn)+'"></label>'+
-      '<label>Previous<select id="tcp">'+opts(['N/A'].concat(TIERS),'N/A')+'</select></label>'+
-      '<div class="row4" id="tcrows"></div>'+
-      '<label style="width:100%">Tester comment<textarea id="tcm" maxlength="220" placeholder="really good mechs"></textarea></label></div>'+
-      '<canvas id="tcc" width="'+W+'" height="'+H+'" aria-label="Tier card preview"></canvas>'+
-      '<p id="tcmsg" class="meta" role="status"></p>'+
-      '<p><button id="tcdl" type="button">Download PNG</button> <button id="tccp" type="button">Copy image</button> '+CLOSE+'</p>',btn);
-    rows();autoPrev();refresh();
-  }
+  function opts(a,sel){return a.map(function(t){return '<option'+(t===sel?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
   function rows(){
     var kit=document.getElementById('tck').value,nm=CAT[kit]||['XXX','XXX','XXX','XXX'],tier=document.getElementById('tct').value,h='',k,old=[];
     for(k=0;k<4;k++){var e=document.getElementById('tcr'+k);old.push(e?e.value:'')}
     for(k=0;k<4;k++)h+='<label>'+nm[k]+'<select id="tcr'+k+'">'+opts(TIERS,old[k]||tier)+'</select></label>';
     document.getElementById('tcrows').innerHTML=h;
+  }
+  function open(pre){
+    var me=tsMe();if(!me)return;
+    var kits=testerKits(me);if(!kits.length)return;
+    pre=pre||{};back=pre.name||'';
+    var kit=kits.indexOf(pre.kit)>-1?pre.kit:kits[0];
+    showM('<h3>Tier card</h3><p class="meta" style="font-size:13px">Type the player\u2019s name to show their skin. The previous tier is their current tier on Bot Tiers.</p>'+
+      '<div class="tcf"><label>Player name<input id="tcn" maxlength="16" autocomplete="off" value="'+esc(pre.name||'')+'"></label>'+
+      '<label>Gamemode<select id="tck">'+opts(kits,kit)+'</select></label>'+
+      '<label>Final tier<select id="tct">'+opts(TIERS,pre.tier||'LT3')+'</select></label>'+
+      '<label>Score<input id="tcs" maxlength="7" size="8" placeholder="1-3" value="'+esc(pre.score||'')+'"></label>'+
+      '<label>Tester<input id="tct2" maxlength="16" size="14" value="'+esc(me.name)+'"></label>'+
+      '<label>Previous (from Bot Tiers)<select id="tcp" disabled><option>N/A</option>'+TIERS.map(function(t){return '<option>'+t+'</option>'}).join('')+'</select></label>'+
+      '<div class="row4" id="tcrows"></div>'+
+      '<label style="width:100%">Tester comment<textarea id="tcm" maxlength="220" placeholder="really good mechs"></textarea></label></div>'+
+      '<canvas id="tcc" width="'+W+'" height="'+H+'" aria-label="Tier card preview"></canvas>'+
+      '<p id="tcmsg" class="meta" role="status"></p>'+
+      '<p><button id="tcdl" type="button">Download PNG</button> <button id="tccp" type="button">Copy image</button> <button id="tcbk" type="button">Back</button> '+CLOSE+'</p>',lastF);
+    rows();autoPrev();refresh();
   }
   document.addEventListener('input',function(e){var id=e.target&&e.target.id;if(!id||id.indexOf('tc')!==0||id==='tcc')return;if(id==='tcn')autoPrev();later()});
   document.addEventListener('change',function(e){var id=e.target&&e.target.id;if(!id||id.indexOf('tc')!==0)return;
@@ -1432,14 +1434,14 @@ render();
     if(id==='tct'){var k;for(k=0;k<4;k++){var r=document.getElementById('tcr'+k);if(r)r.value=e.target.value}}
     refresh()});
   document.addEventListener('click',function(e){
-    var t=e.target.closest?e.target.closest('#tcbtn,#tcdl,#tccp'):null;if(!t)return;
-    var cv=document.getElementById('tcc'),m=document.getElementById('tcmsg');
-    if(t.id==='tcbtn')return open();
-    if(!cv)return;
+    var t=e.target.closest?e.target.closest('#tsdc,#tcdl,#tccp,#tcbk'):null;if(!t)return;
+    if(t.id==='tsdc'){var g=function(i){var x=document.getElementById(i);return x?x.value:''};return open({name:g('tsn').trim(),kit:g('tsk'),tier:g('tst'),score:g('tss').trim()})}
+    if(t.id==='tcbk')return testerTools(back);
+    var cv=document.getElementById('tcc'),m=document.getElementById('tcmsg');if(!cv)return;
     try{
       cv.toBlob(function(b){
         if(!b){if(m)m.textContent='Couldn\u2019t make the image.';return}
-        if(t.id==='tcdl'){var a=document.createElement('a'),n=(readForm().name||'player')+'-'+readForm().kit+'.png';a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();if(m)m.textContent='Downloaded.'}
+        if(t.id==='tcdl'){var a=document.createElement('a'),f=readForm();a.href=URL.createObjectURL(b);a.download=(f.name||'player')+'-'+f.kit+'.png';document.body.appendChild(a);a.click();a.remove();if(m)m.textContent='Downloaded.'}
         else{try{navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(function(){m.textContent='Copied.'},function(){m.textContent='Your browser blocked copying. Use Download.'})}catch(x){m.textContent='Your browser can\u2019t copy images. Use Download.'}}
       },'image/png');
     }catch(x){if(m)m.textContent='The skin picture blocked saving. Try another name or reload.'}
