@@ -1379,7 +1379,7 @@ render();
     // full-body skin — no enclosing card; enlarge it to fill the left side
     if(img){
       var box={x:4,y:66,w:330,h:570};
-      var sc=Math.min(box.w/img.width,box.h/img.height)*1.12;
+      var sc=Math.min(box.w/img.width,box.h/img.height)*1.0864; // 3% smaller than the previous 1.12 scale
       var sw=img.width*sc,sh=img.height*sc;
       c.save();
       c.drawImage(img,box.x+(box.w-sw)/2,box.y+box.h-sh,sw,sh);
