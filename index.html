@@ -1332,8 +1332,31 @@ render();
   function skin(name){
     if(!name)return Promise.resolve(null);
     if(SK[name])return SK[name];
-    var n=encodeURIComponent(name),L=['https://skinrender.dev/render/'+n+'/full','https://visage.surgeplay.com/full/512/'+n,'https://mc-heads.net/body/'+n+'/500'],sk=skinOf(name);
-    SK[name]=(function next(k){return k>=L.length?(sk?loadImg(sk):Promise.resolve(null)):loadImg(L[k]).then(function(i){return i||next(k+1)})})(0);
+    var n=encodeURIComponent(name);
+    function render(uuid){
+      if(!uuid)return Promise.resolve(null);
+      return loadImg('https://skinrender.dev/render/'+encodeURIComponent(uuid)+'/body?size=512&default=none');
+    }
+    function profileFromSkinRender(){
+      return fetch('https://skinrender.dev/api/profile/'+n).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+        var id=j&&(j.uuid||(j.profile&&j.profile.id)||(j.data&&j.data.uuid));
+        return id?render(id):null;
+      }).catch(function(){return null});
+    }
+    function profileFromPlayerDB(){
+      return fetch('https://playerdb.co/api/player/minecraft/'+n).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+        var id=j&&j.success&&j.data&&j.data.player&&j.data.player.id;
+        return id?render(id):null;
+      }).catch(function(){return null});
+    }
+    SK[name]=profileFromSkinRender().then(function(i){
+      if(i)return i;
+      return profileFromPlayerDB();
+    }).then(function(i){
+      if(i)return i;
+      var L=['https://visage.surgeplay.com/full/512/'+n,'https://mc-heads.net/body/'+n+'/500'];
+      return (function next(k){return k>=L.length?Promise.resolve(null):loadImg(L[k]).then(function(x){return x||next(k+1)})})(0);
+    });
     return SK[name];
   }
   function logoImg(){
