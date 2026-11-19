@@ -1335,7 +1335,9 @@ render();
     var n=encodeURIComponent(name);
     function render(uuid){
       if(!uuid)return Promise.resolve(null);
-      return loadImg('https://skinrender.dev/render/'+encodeURIComponent(uuid)+'/body?size=512&default=none');
+      return loadImg('https://visage.surgeplay.com/full/512/'+encodeURIComponent(uuid)).then(function(i){
+        return i||loadImg('https://skinrender.dev/render/'+encodeURIComponent(uuid)+'/body?size=512&default=none');
+      });
     }
     function profileFromSkinRender(){
       return fetch('https://skinrender.dev/api/profile/'+n).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
@@ -1378,8 +1380,8 @@ render();
     c.fillStyle='#fff';c.font='800 25px '+SN;c.textAlign='center';c.fillText('discord.gg/A2DKwzRyGm',990,52);c.textAlign='left';
     // full-body skin — no enclosing card; enlarge it to fill the left side
     if(img){
-      var box={x:4,y:66,w:330,h:570};
-      var sc=Math.min(box.w/img.width,box.h/img.height)*1.0864; // 3% smaller than the previous 1.12 scale
+      var box={x:12,y:104,w:292,h:520};
+      var sc=Math.min(box.w/img.width,box.h/img.height)*.98; // smaller, with clear space above for the Bot Tiers logo
       var sw=img.width*sc,sh=img.height*sc;
       c.save();
       c.drawImage(img,box.x+(box.w-sw)/2,box.y+box.h-sh,sw,sh);
