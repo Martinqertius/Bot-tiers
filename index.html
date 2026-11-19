@@ -1353,10 +1353,18 @@ render();
     c.fillStyle='#fff';c.font='800 34px '+SN;c.fillText('Bot Tiers',98,55);
     c.fillStyle='rgba(255,255,255,.1)';rr(c,820,20,340,46,23);c.fill();c.strokeStyle='#f7cf4f';c.lineWidth=2;c.stroke();
     c.fillStyle='#fff';c.font='800 25px '+SN;c.textAlign='center';c.fillText('discord.gg/A2DKwzRyGm',990,52);c.textAlign='left';
-    // skin
-    c.fillStyle='rgba(255,255,255,.07)';rr(c,40,96,270,430,26);c.fill();c.strokeStyle='rgba(255,255,255,.18)';c.lineWidth=2;c.stroke();
-    if(img){c.save();rr(c,40,96,270,430,26);c.clip();var sc=Math.min(262/img.width,422/img.height);c.drawImage(img,40+(270-img.width*sc)/2,96+(430-img.height*sc)/2,img.width*sc,img.height*sc);c.restore()}
-    else{c.fillStyle='#16524b';rr(c,92,150,166,166,24);c.fill();c.fillStyle='#2a7a70';c.font='800 96px '+SN;c.textAlign='center';c.fillText('?',175,268);c.textAlign='left';rr(c,70,336,210,150,22);c.fillStyle='#16524b';c.fill()}
+    // skin — no enclosing card; scale the transparent bust to fill the left side naturally
+    if(img){
+      var box={x:22,y:82,w:300,h:500};
+      var sc=Math.min(box.w/img.width,box.h/img.height)*1.08;
+      var sw=img.width*sc,sh=img.height*sc;
+      c.save();
+      c.drawImage(img,box.x+(box.w-sw)/2,box.y+box.h-sh,sw,sh);
+      c.restore();
+    }else{
+      c.fillStyle='#2a7a70';c.font='800 96px '+SN;c.textAlign='center';
+      c.fillText('?',172,300);c.textAlign='left';
+    }
     // name + kit
     c.fillStyle='#fff';c.shadowColor='rgba(247,207,79,.55)';c.shadowBlur=16;var fs=60;c.font='700 '+fs+'px '+PX;while(c.measureText(d.name||'Player').width>800&&fs>28){fs-=2;c.font='700 '+fs+'px '+PX}
     c.fillText(d.name||'Player',344,160);c.shadowBlur=0;
