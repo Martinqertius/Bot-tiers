@@ -237,13 +237,14 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--
 .tcf textarea{width:100%;min-height:54px;resize:vertical}
 .tcf .row4{display:flex;gap:6px;flex-wrap:wrap;width:100%}
 #tcc{display:block;width:100%;height:auto;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+#tcsend{background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:700}
 #tsdc{background:linear-gradient(135deg,#f7cf4f,#e29a55);border-color:#d4a017;color:#3a2600;font-weight:700}
 </style>
 </head>
 <body>
 <template id="shell">
 <header>
-  <h1 class="logo"><svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#06302c"></rect><rect x="4.5" y="14" width="7.5" height="12" rx="1.5" fill="#a9b8d0"></rect><rect x="12.25" y="7" width="7.5" height="19" rx="1.5" fill="#f7cf4f"></rect><rect x="20" y="17" width="7.5" height="9" rx="1.5" fill="#b8651f"></rect><rect x="12.25" y="7" width="7.5" height="3" rx="1.5" fill="#fff3b0"></rect><rect x="4.5" y="14" width="7.5" height="3" rx="1.5" fill="#dbe5f5"></rect><rect x="20" y="17" width="7.5" height="3" rx="1.5" fill="#e29a55"></rect></svg><span>Bot Tiers</span></h1>
+  <h1 class="logo"><svg width="38" height="38" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14736a"></stop><stop offset="1" stop-color="#06302c"></stop></linearGradient><linearGradient id="lggd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a8"></stop><stop offset="1" stop-color="#f0b429"></stop></linearGradient></defs><path d="M16 1.6 28.4 5.6V15c0 7-5 12.2-12.4 15.4C8.6 27.2 3.6 22 3.6 15V5.6Z" fill="url(#lgbg)" stroke="url(#lggd)" stroke-width="1.6" stroke-linejoin="round"></path><path d="M9.2 14.6 10.6 8.8 13.9 11.9 16 7.4 18.1 11.9 21.4 8.8 22.8 14.6Z" fill="url(#lggd)"></path><path d="M10 18.2 16 21.4 22 18.2" fill="none" stroke="#fff3b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M11.4 22.4 16 24.9 20.6 22.4" fill="none" stroke="#e29a55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Bot Tiers</span></h1>
   <div class="hr"><input id="q" type="search" placeholder="Search player" aria-label="Search player"><button id="sbtn" type="button" aria-pressed="false">Stats</button><button id="pbtn" type="button" aria-pressed="false" title="How many points each tier is worth">Points</button><button id="dcbtn" type="button" title="Log in with Discord">Log in with Discord</button><button id="cosbtn" type="button" title="Cosmetics">Cosmetics</button><button id="lkbtn" type="button" title="Approve a Discord link request">Link Discord</button><button id="xbtn" type="button" title="Download a backup">Export</button><button id="ibtn" type="button" title="Load a backup">Import</button><button id="abtn" type="button" aria-pressed="false">Admin login</button><button id="tbtn" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button><button id="svbtn" type="button" title="Save and publish your changes for everyone">Save</button><button id="pubst" type="button" title="Publish changes now" role="status"></button><input id="ifile" type="file" accept="application/json" aria-label="Import backup"></div>
 </header>
 <nav id="nav" aria-label="Gamemode"></nav>
@@ -1380,8 +1381,8 @@ render();
     c.fillStyle='#fff';c.font='800 25px '+SN;c.textAlign='center';c.fillText('discord.gg/A2DKwzRyGm',990,52);c.textAlign='left';
     // full-body skin — no enclosing card; enlarge it to fill the left side
     if(img){
-      var box={x:12,y:104,w:292,h:520};
-      var sc=Math.min(box.w/img.width,box.h/img.height)*.98; // smaller, with clear space above for the Bot Tiers logo
+      var box={x:4,y:92,w:334,h:560};
+      var sc=Math.min(box.w/img.width,box.h/img.height);
       var sw=img.width*sc,sh=img.height*sc;
       c.save();
       c.drawImage(img,box.x+(box.w-sw)/2,box.y+box.h-sh,sw,sh);
@@ -1417,7 +1418,6 @@ render();
     c.fillStyle='#fff';c.font='600 22px '+SN;wrap(c,d.comment||'No comment.',410,548,730,28,2);
     c.fillStyle='#9fc8c1';c.font='700 17px '+SN;c.textAlign='right';c.fillText('Tested by '+(d.tester||'N/A'),1140,612);c.textAlign='left';
     // bottom strip
-    c.fillStyle='rgba(255,255,255,.35)';c.font='600 15px '+SN;c.fillText('Bot Tiers',44,H-14);
   }
   function readForm(){
     var g=function(i){return document.getElementById(i)},kit=g('tck').value,tier=g('tct').value,cats=[],k,nm=CAT[kit]||['XXX','XXX','XXX','XXX'];
@@ -1457,8 +1457,8 @@ render();
       '<div class="row4" id="tcrows"></div>'+
       '<label style="width:100%">Tester comment<textarea id="tcm" maxlength="220" placeholder="really good mechs"></textarea></label></div>'+
       '<canvas id="tcc" width="'+W+'" height="'+H+'" aria-label="Tier card preview"></canvas>'+
-      '<p id="tcmsg" class="meta" role="status"></p>'+
-      '<p><button id="tcdl" type="button">Download PNG</button> <button id="tccp" type="button">Copy image</button> <button id="tcbk" type="button">Back</button> '+CLOSE+'</p>',lastF);
+      '<p id="tcmsg" class="meta" role="status"></p><input type="hidden" id="tsn"><input type="hidden" id="tsk"><input type="hidden" id="tst"><input type="hidden" id="tss"><p id="tsr" class="meta" role="status"></p><div id="tsc"></div>'+
+      '<p><button id="tcsend" type="button">Send request to inbox</button> <button id="tcdl" type="button">Download PNG</button> <button id="tccp" type="button">Copy image</button> <button id="tcbk" type="button">Back</button> '+CLOSE+'</p>',lastF);
     rows();autoPrev();refresh();
   }
   document.addEventListener('input',function(e){var id=e.target&&e.target.id;if(!id||id.indexOf('tc')!==0||id==='tcc')return;if(id==='tcn')autoPrev();later()});
@@ -1467,8 +1467,9 @@ render();
     if(id==='tct'){var k;for(k=0;k<4;k++){var r=document.getElementById('tcr'+k);if(r)r.value=e.target.value}}
     refresh()});
   document.addEventListener('click',function(e){
-    var t=e.target.closest?e.target.closest('#tsdc,#tcdl,#tccp,#tcbk'):null;if(!t)return;
+    var t=e.target.closest?e.target.closest('#tsdc,#tcdl,#tccp,#tcbk,#tcsend'):null;if(!t)return;
     if(t.id==='tsdc'){var g=function(i){var x=document.getElementById(i);return x?x.value:''};return open({name:g('tsn').trim(),kit:g('tsk'),tier:g('tst'),score:g('tss').trim()})}
+    if(t.id==='tcsend'){var f0=readForm(),sv=function(i,v){document.getElementById(i).value=v};sv('tsn',f0.name);sv('tsk',f0.kit);sv('tst',f0.tier);sv('tss',f0.score);return tsRequest('give')}
     if(t.id==='tcbk')return testerTools(back);
     var cv=document.getElementById('tcc'),m=document.getElementById('tcmsg');if(!cv)return;
     try{
