@@ -1327,7 +1327,7 @@ render();
 /* ---- tier cards (inside Tester tools) ---- */
 (function(){
   try{var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Silkscreen:wght@400;700&display=swap';document.head.appendChild(fl)}catch(e){}
-  var SK={},CAT={Mace:['Ground','Aerial','Drain','Dodges']},W=1200,H=660,PX='"Silkscreen","Courier New",monospace',SN='"Nunito","Inter",Arial,sans-serif';
+  var SK={},CAT={Mace:['Ground','Aerial','Drain','Dodges'],Sword:['Combo','Trades','Aim','Skill'],Npot:['Healing','Survival','Mechanics','Skill'],SMP:['Mechanics','Combos','Shield Breaks','Survival'],Cpvp:['Toteming','Anchoring','Mechanics','Crystaling'],Axe:['Movement','Aim','Reactions','Skill']},W=1200,H=660,PX='"Silkscreen","Courier New",monospace',SN='"Nunito","Inter",Arial,sans-serif';
   var TC={1:['#ffd75a','#e7a904'],2:['#c9d1de','#8b96ab'],3:['#e8944a','#c67421'],4:['#58c796','#37976b'],5:['#7d9fe0','#5178c1']};
   function loadImg(src){return new Promise(function(res){var i=new Image();i.crossOrigin='anonymous';i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
   function skin(name){
